@@ -1,0 +1,18 @@
+---
+title: "ETC5521_Assignment1_wombat"
+author: "Hanh Ngo"
+date: "8/14/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+## Load data
+```{r load-data}
+hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
+```
+
