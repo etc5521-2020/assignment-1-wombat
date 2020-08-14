@@ -11,8 +11,41 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
-## Load data
+```{r}
+library(tidyverse)
+```
+
+## Introduction
+
+
+## Data description
+#### Source of data
+
+
+#### Detail Structure of the data
+
+
+#### Time frame of collection
+
+
+#### Collection Method
+
+## Limitations:
+
+
+## Data cleaning:
+
+
+## Analysis
+
 ```{r load-data}
 hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
 ```
 
+```{r}
+glimpse(hotels)
+
+```
+
+
+## Conclusion
