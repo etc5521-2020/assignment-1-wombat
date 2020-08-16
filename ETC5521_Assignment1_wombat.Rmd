@@ -1,8 +1,11 @@
 ---
 title: "ETC5521_Assignment1_wombat"
-author: "Hanh Ngo"
+author: "Hanh Ngo, Dewi Lestari Amaliah"
 date: "8/14/2020"
-output: pdf_document
+bibliography: references.bib
+output: 
+  bookdown::pdf_document2:
+    citation_package: biblatex
 ---
 
 ```{r setup, include=FALSE}
@@ -27,8 +30,23 @@ library(tidyverse)
 
 #### Time frame of collection
 
+The time frame covered in this data set is from 1st July of 2015 to 31st August of 2017, daily. 
+
 
 #### Collection Method
+
+@AntonioNuno2019Hbdd collected the data by extracting the variables from the hotels' PMS databases' server with a TSQL query in SQL Server Studio Manager. The tables that were used to extract the variables are: 
+
+1. BO (booking table in which the key, which is the ID, was retrieved).
+2. BL (bookings change log table).
+3. ML (meals).
+4. DC (distribution channel).
+5. TR (transaction).
+6. CP (customer profiles).
+7. NT (nationalities).
+8. MS (market segments) table. 
+
+Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
 ## Limitations:
 
