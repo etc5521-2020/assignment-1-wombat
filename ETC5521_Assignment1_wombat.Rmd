@@ -38,13 +38,13 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 @AntonioNuno2019Hbdd collected the data by extracting the variables from the hotels' PMS databases' server with a TSQL query in SQL Server Studio Manager. The tables that were used to extract the variables are: 
 
 1. BO (booking table in which the key, which is the ID, was retrieved).
-2. BL (bookings change log table).
+2. BL (bookings change log, in this case, if the booking details with respect to the day before arrival changed, the value used was the one present in this table).
 3. ML (meals).
 4. DC (distribution channel).
 5. TR (transaction).
 6. CP (customer profiles).
 7. NT (nationalities).
-8. MS (market segments) table. 
+8. MS (market segments). 
 
 Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
