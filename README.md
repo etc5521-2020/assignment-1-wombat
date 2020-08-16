@@ -1,11 +1,11 @@
 # ETC5521 Assignment 1 
 
-Team name: [FILL]
+Team name: **WOMBAT**
 
 Team members:
 
-* [FILL]
-* [FILL]
+* Hai Hanh Ngo
+* Dewi Lestari Amaliah
 
 # Steps
 
