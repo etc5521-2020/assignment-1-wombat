@@ -53,7 +53,22 @@ Regarding the time stamp, when the bookings were created before the arrival, the
 ## Limitations:
 
 
-## Data cleaning:
+## Data cleaning
+
+
+### Missing values checking
+
+
+@BennettDerrickA argued that it is important to take missing value into account, otherwise the statistical analysis will be misleading and variability of the data could not be estimated correctly. Thus, before analyzing the data, we checked the missing value using `visdat` package [@visdat] first. 
+
+
+```{r missing-vals-check, fig.cap= "Variables Type and Missing Value Visualization"}
+
+vis_dat(hotels, warn_large_data = FALSE)
+
+```
+
+Figure \@ref(fig:missing-vals-check) shows that there is no missing value in the dataset. It is inline with what @AntonioNuno2019Hbdd stated that there is no missing values in the database table. However, some "NULL" values are presented which should be interpreted as "not applicable", not a missing value [@AntonioNuno2019Hbdd].
 
 
 ## Analysis
