@@ -1,10 +1,10 @@
 ---
 title: "ETC5521 Assignment 1"
 subtitle: "Your title"
-team: [FILL]
+team: WOMBAT
 author:
-  - [FILL]
-  - [FILL]
+  - Hai Hanh Ngo
+  - Dewi Lestari Amaliah
 date: "`r Sys.Date()`"
 output: 
   html_document
@@ -12,6 +12,15 @@ output:
 
 [This assignment is for ETC5521 Assignment 1 by Team `r rmarkdown::metadata$team` comprising of `r knitr::combine_words(rmarkdown::metadata$author)`.]{style="color:#006DAE;"}
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+```
 
 # Introduction and motivation
 
@@ -19,8 +28,72 @@ output:
 
 # Data description
 
+In 2018, Nuno Antonio, Ana de Almeida and Luis Nunes published a data article called "Hotel booking demand datasets" which introduced to the public two datasets for two hotels in Portugal, one resort in Algarve (H1) and one city hotel in Lisbon (H2). These datasets were originally collected to serve the development of prediction models to assess the hotels' likelihood of having their bookings cancelled, however the uses of variables included also allow other researching purposes. 
+
+The datasets for the two hotels can be downloaded separately at https://www.sciencedirect.com/science/article/pii/S2352340918315191. However, *jthomasmock* at _tidytuesday challenge_ had done us a favor and combined the two datasets into one. The two original datasets and the combined one can be obtained at https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md. 
+
+The dataset is stored in a _csv_ file format with 32 variables and 119,390 observations (40,060 for H1 and 79,330 for H2). Each observation represents one hotel booking. The format of the dataset is as below:
+
+```{r load-data}
+hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
+
+glimpse(hotels)
+```
+
+Knowing this dataset belonged to a hotel, we can make sense most of the variables. However, not all of them are familiar for anyone who did not have a background of hotel management. We will run through some of the industry jargons and variables'meaning before we take a further look at the data.
+
+Variables note:  
+- is_cancelled: (1) if the booking was cancelled and (0) if not.  
+- lead_time: number of days between when the booking was entered into the hotel's booking system and the arrival date.  
+- meal:  Type of meal booked which can be:  
+  * BB: Bed and Breakfast.  
+  * FB: Full board (breakfast, lunch and dinner).  
+  * HB: Half board (breakfast and one meal, usually dinner).  
+  * Undefined/ SC: no meal package.  
+- country:  Guests'country of origin.  
+- market_segment: guests'market segment, some of which may associate with booking channel.    
+  * Direct: guests that make bookings directly with the hotels, could be from hotel's website/ phone booking or walk-ins.  
+  * Corporate: Guests whom bookings are made by corporate/ company or guests who are business travellers.    
+  * Online TA: Online travel agents - bookings that made through a third party websites. Examples are Agoda, Expedia, Booking.com...  
+  * Offline TA/TO: Bookings made by Travel agents or Tour operators.  
+  * Complementary: Free stays offered for guests, usually from hotels' promotional programs.    
+  * Groups: guests who travelled in groups.  
+  * Undefined: Undefined type of guests.  
+  * Aviation: We are not entirely sure but this could be airline crews.    
+- Distribution_channel:   
+  * Direct: bookings that made directly with the hotels (hotel's websites, phone or walk-ins)  
+  * Corporate:  bookings made by corporate/company.
+  * TA/TO: Travel agents/ tour operators/    
+  * Undefined: Undefined distribution channel.  
+  * GDS: Global Distribution System. GDS served like a hub for companies in the travel industry (airlines, hotels, car rental...) to connect with travel agents. Hotels will put some of their inventories (rooms) to the GDS and travel agents then can sell those rooms to their customers. Some of the well-known GDS include Amadeus, Sabre and Galileo.   
+- is_repeated_guess: (1) if repeated and (0) if not.   
+- customer_type:    
+  * Transient: Individuals or groups that occupy less than 10 rooms per night. These guests usually stay in the hotel short - term and require little services.  
+  * Contract: bookings bound by contracts, usually for more than 30 days for a consistent block of rooms.  
+  * Transient - Party: Transient booking but associated to other transient booking.   
+  * Group: bookings associated to a group, usually occupy more than 10 rooms per night.  
+- previous_cancellations: number of previous cancellations prior to current booking by a customer.  
+- previous_bookings_not_canceled: number of previous non - cancelled bookings prior to current booking by a customer.  
+- booking_changes: number of changes made to the booking from when it was enterred into the system till the day of arrival/ cancellation.    
+- agent: ID of travel agency that made the bookings.  
+- company: ID of companies that made the bookings.  
+- days_in_waiting_list: number of days booking was in the waiting list before it was confirmed to customers.  
+- adr: Average Daily Rate, computed by taking total room revenue (excluded breakfast, tax and service charges) divided by total number of room nights sold.  
+
+You may notice that some variables contained the "NULL" values (eg: agent or company variable). This "NULL" value did not mean the value was missing, rather such value did not exist to begin with; for example a booking may not have the ID of an agent or a company associated with it as such booking was made by an individual traveller.  
+
+
+
 # Analysis and findings
+
+```{r}
+
+```
+
 
 [FILL] Should include at least one plot or numerical summary for each of your questions, that helps the reader arrive at an answer. You should also write paragraphs describing the methods, summaries and findings. 
 
 # References
+
+Definition https://str.com/sites/default/files/2019-11/str-data-reporting-guidelines-english-2019.pdf
+
