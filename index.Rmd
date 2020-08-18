@@ -12,12 +12,24 @@ output:
 
 [This assignment is for ETC5521 Assignment 1 by Team `r rmarkdown::metadata$team` comprising of `r knitr::combine_words(rmarkdown::metadata$author)`.]{style="color:#006DAE;"}
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r library}
+library(tidyverse)
+```
+
 
 # Introduction and motivation
 
 [FILL] Give the bigger picture of the data, and inspire the reader to learn more about the problem by reading your analysis. 
 
 # Data description
+
+## Dateset overview and structure
 
 In 2018, Nuno Antonio, Ana de Almeida and Luis Nunes published a data article called "Hotel booking demand datasets" which introduced to the public two datasets for two hotels in Portugal, one resort in Algarve (H1) and one city hotel in Lisbon (H2). These datasets were originally collected to serve the development of prediction models to assess the hotels' likelihood of having their bookings cancelled, however the uses of variables included also allow other researching purposes. 
 
@@ -31,9 +43,8 @@ hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 glimpse(hotels)
 ```
 
-Knowing this dataset belonged to a hotel, we can make sense most of the variables. However, not all of them are familiar for anyone who did not have a background of hotel management. We will run through some of the industry jargons and variables'meaning before we take a further look at the data.
-
-Variables note:  
+Knowing this dataset belonged to a hotel, we can make sense most of the variables. However, not all of them are familiar for anyone who did not have a background of hotel management. We will run through some of the industry jargons and variables' meaning before we take a further look at the data.
+ 
 - is_cancelled: (1) if the booking was cancelled and (0) if not.  
 - lead_time: number of days between when the booking was entered into the hotel's booking system and the arrival date.  
 - meal:  Type of meal booked which can be:  
@@ -65,6 +76,7 @@ Variables note:
   * Group: bookings associated to a group, usually occupy more than 10 rooms per night.  
 - previous_cancellations: number of previous cancellations prior to current booking by a customer.  
 - previous_bookings_not_canceled: number of previous non - cancelled bookings prior to current booking by a customer.  
+- reserved_room_type and assigned_room_type: For anonymity purpose, the name of the room categories were replaced by code which are letters. The reserved room type may not be the same with the assigned room type when the customer checked in, which may due to hotel's operation reason (overbooking, room upgrade for promotional purpose) or at the customers'requests.  
 - booking_changes: number of changes made to the booking from when it was enterred into the system till the day of arrival/ cancellation.    
 - agent: ID of travel agency that made the bookings.  
 - company: ID of companies that made the bookings.  
@@ -79,7 +91,7 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 
 ## Collection methods
 
-@AntonioNuno2019Hbdd collected the data by extracting the variables from the hotels' PMS databases' server with a TSQL query in SQL Server Studio Manager. The tables that were used to extract the variables are: 
+@AntonioNuno2019Hbdd collected the data by extracting the variables from the hotels' PMS (Property Management System) databases' server with a TSQL query in SQL Server Studio Manager. The tables that were used to extract the variables are: 
 
 1. BO (booking table in which the key, which is the ID, was retrieved).
 2. BL (bookings change log, in this case, if the booking details with respect to the day before arrival changed, the value used was the one present in this table).
@@ -89,6 +101,13 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 6. CP (customer profiles).
 7. NT (nationalities).
 8. MS (market segments). 
+
+A diagram below made by @AntonioNuno2019Hbdd presented the structure of the PMS databases:  
+
+```{r pms-diagram, fig.cap = "PMS database diagrams"}
+knitr::include_graphics(here::here("PMS_diagram.jpg"))
+```
+
 
 Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
