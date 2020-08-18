@@ -1,10 +1,10 @@
 ---
 title: "ETC5521 Assignment 1"
 subtitle: "Your title"
-team: [FILL]
+team: WOMBAT
 author:
-  - [FILL]
-  - [FILL]
+  - Hai Hanh Ngo
+  - Dewi Lestari Amaliah
 date: "`r Sys.Date()`"
 output: 
   html_document
@@ -72,6 +72,25 @@ Variables note:
 - adr: Average Daily Rate, computed by taking total room revenue (excluded breakfast, tax and service charges) divided by total number of room nights sold.  
 
 You may notice that some variables contained the "NULL" values (eg: agent or company variable). This "NULL" value did not mean the value was missing, rather such value did not exist to begin with; for example a booking may not have the ID of an agent or a company associated with it as such booking was made by an individual traveller.  
+
+## Time Frame of Collection
+
+The time frame covered in this data set is from 1st July of 2015 to 31st August of 2017, daily.
+
+## Collection methods
+
+@AntonioNuno2019Hbdd collected the data by extracting the variables from the hotels' PMS databases' server with a TSQL query in SQL Server Studio Manager. The tables that were used to extract the variables are: 
+
+1. BO (booking table in which the key, which is the ID, was retrieved).
+2. BL (bookings change log, in this case, if the booking details with respect to the day before arrival changed, the value used was the one present in this table).
+3. ML (meals).
+4. DC (distribution channel).
+5. TR (transaction).
+6. CP (customer profiles).
+7. NT (nationalities).
+8. MS (market segments). 
+
+Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
 # Analysis and findings
 
