@@ -111,6 +111,19 @@ knitr::include_graphics(here::here("PMS_diagram.jpg"))
 
 Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
+# Possible Questions 
+
+The primary possible questions that would be possible to answer with this data is:
+
+> How is the distribution of hotel bookings in the city and resort hotel? 
+
+This question is then derived to three secondary questions as follow:
+
+1. Is there any difference in hotel booking in the city and resort hotel regarding the pattern of guest, meal, customer segment, lead time, cancellation, distribution channel, ADR, and length of stay?
+2. Is there any difference in hotel booking between high season and low season?
+3. Is there any noticeable change in booking pattern in both types of hotels through the years?
+
+
 # Analysis and findings
 
 [FILL] Should include at least one plot or numerical summary for each of your questions, that helps the reader arrive at an answer. You should also write paragraphs describing the methods, summaries and findings. 
