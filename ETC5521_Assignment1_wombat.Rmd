@@ -18,12 +18,20 @@ knitr::opts_chunk$set(echo = TRUE,
 library(tidyverse)
 library(visdat)
 library(skimr)
+library(plotly)
+library(gridExtra)
 ```
 
 ## Introduction
 
 
 ## Data description
+
+```{r load-data}
+hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
+```
+
+
 #### Source of data
 
 
@@ -105,14 +113,78 @@ Figure \@ref(fig:data-type) portrays that the variables have been in a correct t
 
 ## Analysis
 
-```{r load-data}
-hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
+
+### The Trend of Market Segment
+
+```{r market-segment-change}
+
+ggplot(hotels_corrected_type) +
+  geom_bar(aes(x = arrival_date_year, 
+               fill = market_segment), 
+           position = "fill") +
+  facet_wrap(~hotel)
+
+ggplotly()
+
 ```
 
-```{r}
-glimpse(hotels)
 
+We need to know the distribution the ADR 
+
+
+from Online TA since most of the booking from this market segment compared to other major market segment. However, in order to examine how the Online TA bookings have contributed to the hotel's revenue, we would only use the data from the actual booking (the not canceled bookings). Besides, we would use the data from 2017 only, since the Online TAs have taken majority of bookings in both hotel in this year.
+
+```{r is_canceled_ms}
+ggplot(filter(hotels_corrected_type, arrival_date_year == 2017)) +
+  geom_bar(aes(x = hotel,
+               fill = is_canceled),
+           position = "fill") +
+  facet_wrap(~market_segment)
 ```
 
 
-## Conclusion
+From graph above, we could see that despite the high number of booking from Online TA, the cancellation rate from this market segment is also high compared to the other market, except for the group bookings especially in city hotel. Hence, we should examine the distribution of hotel guests from the actual booking only. 
+
+
+```{r actual_guest}
+actual_guest <- hotels_corrected_type %>%
+  filter(is_canceled == 0)
+```
+
+```{r actual_guest_ms}
+ggplot(filter(actual_guest, arrival_date_year == 2017)) +
+  geom_bar(aes(x = hotel, 
+               fill = market_segment), 
+           position = "fill")
+```
+
+Meal distribution
+
+```{r meal-dist}
+ggplot(filter(actual_guest, arrival_date_year == 2017)) +
+  geom_bar(aes(x = hotel,
+               fill = meal),
+           position = "fill")
+```
+```{r adr-pp-cal}
+actual_guest <- actual_guest %>%
+  mutate(adr_pp = adr / (adults + children + babies))
+```
+
+
+```{r adr-ms}
+
+ggplot(filter(actual_guest, arrival_date_year == 2017 & meal == "BB" & adr != 0)) +
+  geom_boxplot(aes(x = market_segment,
+               y = adr, fill = market_segment)) +
+  facet_grid(hotel ~ assigned_room_type) +
+  theme(legend.position = "bottom",
+        axis.text.x=element_blank(),
+        axis.ticks.x = element_blank())
+```
+
+
+
+
+
+
