@@ -20,6 +20,8 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ```{r}
 library(tidyverse)
+library(lubridate)
+library(kableExtra)
 ```
 
 # Introduction and motivation
@@ -36,7 +38,9 @@ The dataset is stored in a _csv_ file format with 32 variables and 119,390 obser
 
 ```{r load-data}
 hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
+```
 
+```{r glimpse}
 glimpse(hotels)
 ```
 
@@ -82,16 +86,185 @@ Variables note:
 
 You may notice that some variables contained the "NULL" values (eg: agent or company variable). This "NULL" value did not mean the value was missing, rather such value did not exist to begin with; for example a booking may not have the ID of an agent or a company associated with it as such booking was made by an individual traveller.  
 
+# Limitation
+
+
+# Questions: Which factors would determine the cancellation rate?
 
 
 # Analysis and findings
 
-```{r}
+We started with 31 variables to look at, and really without any distinct direction, so we started off by loking at some of the most prominent features of hotels:
+
+```{r var-choose}
+hotel_mngt <- hotels %>%
+  mutate(arrival_date = dmy(paste0(arrival_date_day_of_month, arrival_date_month, arrival_date_year, sep = "-"))) %>%
+  select(hotel, arrival_date, arrival_date_week_number,arrival_date_month, arrival_date_year, lead_time,
+         previous_cancellations, previous_bookings_not_canceled, deposit_type, booking_changes,deposit_type,
+         agent, days_in_waiting_list, required_car_parking_spaces, total_of_special_requests, 
+         reservation_status, reservation_status_date, customer_type, market_segment, adr) %>%
+  # Tweaking a bit
+  mutate(hotel = as.factor(hotel))
+```
+
+### Who are staying at the hotels?
+
+```{r customer-type}
 
 ```
 
 
-[FILL] Should include at least one plot or numerical summary for each of your questions, that helps the reader arrive at an answer. You should also write paragraphs describing the methods, summaries and findings. 
+### Which channels hotels are selling through and at which price?
+```{r channel}
+
+```
+
+
+
+### The high and low season: 
+Booking and ADR by months, if possible guests type
+
+
+
+### Reservation status
+Then, we have a look at the reservation status of these two hotels. 
+
+```{r cancel, fig.cap = "Reservation status by hotel type"}
+hotel_status <- hotel_mngt %>%
+  select(hotel, reservation_status, arrival_date_year) %>%
+  group_by(hotel,arrival_date_year, reservation_status) %>%
+  count()
+
+# Plot reservation status by year and hotel
+hotel_status %>% 
+  ggplot(aes(x = arrival_date_year, y = n, fill = reservation_status)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~hotel) +
+  theme_minimal() +
+  xlab("year") +
+  ylab("number of bookings") +
+  labs(title = "Reservation status by hotel type")
+```
+
+Things to note about this plot:  
+- 2016 seems to be the best year for both hotels in terms of total bookings. --> figure out why  
+- Clearly city hotels have more bookings than resort hotel. Does that mean city hotels have more guests than resort hotel? Should check the LOS and number of guests/ rooms. Need a different section for this.  
+- Cancellation seems to be a problem in city hotel. Visually number of cancelation in city hotel is higher than resort. We may want to check the proportion rather than the absolute number.  
+
+We will look more in detail for each points:
+
+```{r LOS}
+
+```
+
+*1a. 2016 is a wonderful year *
+
+*1b. The higher the bigger?*
+
+*1c. The one who got away*
+Let's have a look at the dark-side of the hotel business - the cancellation. No hotels like cancellation, at least on a non - refund basis. How is the cancellation rate different from a city hotel to a resort?
+
+```{r cancellation}
+# what is the cancellation rate?
+hotel_cancel <- hotel_mngt %>%
+  select(hotel, arrival_date ,reservation_status) %>%
+  group_by(hotel, reservation_status) %>%
+  count() %>%
+  pivot_wider(names_from = reservation_status, values_from = n, values_fill = 0) %>%
+  mutate(total_bookings = Canceled + `Check-Out` + `No-Show`) %>%
+  mutate(prop_cancel = round(Canceled/ total_bookings,4))
+
+hotel_cancel %>%
+  kable(caption = "Overall cancellation rate") %>%
+  kable_styling(bootstrap_options = c("hover", "stripping"))
+```
+
+The overall cancelation rate of 3 years posed a striking difference between city hotel and resort: `r with(hotel_cancel, prop_cancel[match("City Hotel",hotel)])*100` percent vs `r with(hotel_cancel, prop_cancel[match("Resort Hotel",hotel)])*100` percent. What factor could possibly contribute to such difference? Did the problem come from the hotel itself or from whatever happened in the overall tourism industry at that point in time? 
+
+
+--------- From here compared cancelled vs check-out----------------------------------------
+
+Let's first put our common sense to test for some of the variables presented in the dataset and cross check with our analysis in the later parts:  
+- Lead time and days in waiting list: will the booking times really mattered? Which bookings are more likely to be cancelled? The ones in the system longer or sooner?  
+- Special requests, parking space requirement, booking changes:  
+- is repeated guests or not:  
+- previous cancellations and successful bookings:  
+- deposit type:  
+
+#### How do the cancellations have in common?
+
+The Hotel's PMS recored the _lead time_, which is the number of days elapse between the entering date of the booking into the system and the arrival date, the _reservation status date_ and the _days in waiting list_, which is the number of days before the booking was confirmed with the customers. We computed the following days:
+
+- the _days_status_to_arrival_: the number of days elapsed between the confirmed reservation status date and the arrival date. This number is expected to be 0 for check-out bookings and smaller than 0 for No-Show and Cancellation. This is computed as **reservation_status_date - arrival_date**.  
+- the _days_in_system_: the number of days elapsed between the entering date of the booking into the system and the confirmed reservation status date. This is computed as **leap_time - days_status_to_arrival**.  
+
+W
+
+```{r}
+cancel_only <- hotel_mngt %>%
+  filter(reservation_status == "Canceled") %>%
+  select(-arrival_date_week_number) %>%
+  mutate(days_status_to_arrival = abs(as.numeric(reservation_status_date - arrival_date)),
+         days_in_system = as.numeric(lead_time - days_status_to_arrival))
+```
+
+```{r system-days, fig.cap = "System days of cancellation bookings"}
+# visualise the days in system and cancellation day
+cancel_only %>%
+  select(hotel, days_in_system, days_in_waiting_list, lead_time) %>%
+  pivot_longer(-hotel, names_to = "system_day", values_to = "days") %>%
+  ggplot(aes(x = system_day, y = days, fill = hotel)) +
+  geom_boxplot() +
+  theme_minimal() +
+  xlab("Type of days") +
+  labs(title = "System days of cancelled bookings")
+```
+
+City hotel seems to outdo resort hotel in every aspects. This does not really tell us anything considering that city hotel having a higher cancellation rate, how about looking at the cancellation side by side with the check-out?
+
+**Check-out vs Cancelled**
+
+```{r checkout}
+status_compare <- hotel_mngt %>%
+  filter(!reservation_status == "No-Show") %>%
+  select(-arrival_date_week_number) %>%
+  mutate(days_status_to_arrival = abs(as.numeric(reservation_status_date - arrival_date)),
+         days_in_system = as.numeric(lead_time - days_status_to_arrival))
+```
+
+```{r checkout-plot}
+status_compare %>%
+  select(hotel, reservation_status,lead_time, days_in_system, days_in_waiting_list) %>%
+  pivot_longer(-c(hotel, reservation_status), names_to = "system_day", values_to = "days") %>%
+  ggplot(aes(x = system_day, y = days, fill = reservation_status)) +
+  geom_boxplot() +
+  facet_wrap(~hotel) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab("Type of days") +
+  labs(title = "System days of bookings")
+  
+```
+
+Beware of bookings with long in-system period. Lead time may have effect on the cancellation rate
+
+```{r lead-time}
+
+```
+
+
+**Who got the cold face?**
+```{r}
+customer_type <- hotel_mngt %>%
+  select(- arrival_date_week_number) %>% 
+  
+```
+
+
+
+#### Bad, bad customer
+
+
+
 
 # References
 
