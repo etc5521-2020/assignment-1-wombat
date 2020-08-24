@@ -4,12 +4,12 @@ author: "Hanh Ngo, Dewi Lestari Amaliah"
 date: "8/14/2020"
 bibliography: references.bib
 output: 
-  bookdown::pdf_document2:
+  bookdown::html_document2:
     citation_package: biblatex
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
+knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE)
 ```
@@ -22,28 +22,28 @@ library(plotly)
 library(gridExtra)
 ```
 
-## Introduction
+# Introduction
 
 
-## Data description
+# Data description
 
 ```{r load-data}
 hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
 ```
 
 
-#### Source of data
+## Source of data
 
 
-#### Detail Structure of the data
+## Detail Structure of the data
 
 
-#### Time frame of collection
+## Time frame of collection
 
 The time frame covered in this data set is from 1st July of 2015 to 31st August of 2017, daily. 
 
 
-#### Collection Method
+## Collection Method
 
 @AntonioNuno2019Hbdd collected the data by extracting the variables from the hotels' PMS databases' server with a TSQL query in SQL Server Studio Manager. The tables that were used to extract the variables are: 
 
@@ -58,19 +58,19 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 
 Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
-## Limitations:
+# Limitations:
 
 
-## Data cleaning
+# Data cleaning
 
 
-### Missing values checking
+## Missing values checking
 
 
 @BennettDerrickA argued that it is important to take missing value into account, otherwise the statistical analysis will be misleading and variability of the data could not be estimated correctly. Thus, before analyzing the data, we checked the missing value using `visdat` package [@visdat] first. 
 
 
-```{r missing-vals-check, fig.cap= "Variables Type and Missing Value Visualization"}
+```{r missing-vals-check, cache = TRUE, fig.cap= "Variables Type and Missing Value Visualization"}
 
 vis_dat(hotels, warn_large_data = FALSE)
 
@@ -79,7 +79,7 @@ vis_dat(hotels, warn_large_data = FALSE)
 Figure \@ref(fig:missing-vals-check) shows that there is no missing value in the dataset. It is inline with what @AntonioNuno2019Hbdd stated that there is no missing values in the database table. However, some "NULL" values were presented which should be interpreted as "not applicable", not a missing value [@AntonioNuno2019Hbdd]. For example, if the the **company** value is NULL, it means that the booking was not made by a company.  
 
 
-### Data type checking
+## Data type checking
 
 
 Figure \@ref(fig:missing-vals-check) also conveys the type of the variables in the dataset. We could see that a lot of variables (such as *hotel*, *distribution_channel*, and *is_cancelled*) have incorrect type. Those variables should be a factor/categorical instead of a character or numeric variables. Therefore, the type of the data should be corrected before doing the analysis. 
@@ -105,26 +105,28 @@ hotels_corrected_type <- hotels %>%
 ```
 
 
-```{r data-type, fig.cap= "Data Type Visualization"}
+```{r data-type, cache = TRUE, fig.cap= "Data Type Visualization"}
 vis_dat(hotels_corrected_type, warn_large_data = FALSE)
 ```
 Figure \@ref(fig:data-type) portrays that the variables have been in a correct type.
 
 
-## Analysis
+# Analysis
 
 
-### The Trend of Market Segment
+## Exploration of Market Segment
 
 ```{r market-segment-change}
 
-ggplot(hotels_corrected_type) +
+ms_change <- ggplot(hotels_corrected_type) +
   geom_bar(aes(x = arrival_date_year, 
                fill = market_segment), 
            position = "fill") +
   facet_wrap(~hotel)
 
-ggplotly()
+ggplotly(ms_change)
+
+
 
 ```
 
