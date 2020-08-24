@@ -4,8 +4,7 @@ author: "Hanh Ngo, Dewi Lestari Amaliah"
 date: "8/14/2020"
 bibliography: references.bib
 output: 
-  bookdown::html_document2:
-    citation_package: biblatex
+  bookdown::html_document2
 ---
 
 ```{r setup, include=FALSE}
@@ -27,7 +26,7 @@ library(gridExtra)
 
 # Data description
 
-```{r load-data}
+```{r load-data, cache = TRUE}
 hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
 ```
 
@@ -58,17 +57,18 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 
 Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
-# Limitations:
+## Limitation of Data:
 
 
-# Data cleaning
+## Data cleaning
 
 
-## Missing values checking
+### Missing values checking
 
 
 @BennettDerrickA argued that it is important to take missing value into account, otherwise the statistical analysis will be misleading and variability of the data could not be estimated correctly. Thus, before analyzing the data, we checked the missing value using `visdat` package [@visdat] first. 
 
+<center>
 
 ```{r missing-vals-check, cache = TRUE, fig.cap= "Variables Type and Missing Value Visualization"}
 
@@ -76,13 +76,16 @@ vis_dat(hotels, warn_large_data = FALSE)
 
 ```
 
+</center>
+
+
 Figure \@ref(fig:missing-vals-check) shows that there is no missing value in the dataset. It is inline with what @AntonioNuno2019Hbdd stated that there is no missing values in the database table. However, some "NULL" values were presented which should be interpreted as "not applicable", not a missing value [@AntonioNuno2019Hbdd]. For example, if the the **company** value is NULL, it means that the booking was not made by a company.  
 
 
-## Data type checking
+### Data type checking
 
 
-Figure \@ref(fig:missing-vals-check) also conveys the type of the variables in the dataset. We could see that a lot of variables (such as *hotel*, *distribution_channel*, and *is_cancelled*) have incorrect type. Those variables should be a factor/categorical instead of a character or numeric variables. Therefore, the type of the data should be corrected before doing the analysis. 
+Figure \@ref(fig:missing-vals-check) also conveys the type of the variables in the dataset. We could see that a lot of variables (such as *hotel*, *distribution_channel*, and *is_canceled*) have incorrect type. Those variables should be a factor/categorical instead of a character or numeric variables. Therefore, the type of the data should be corrected before doing the analysis. 
 
 ```{r}
 hotels_corrected_type <- hotels %>%
@@ -105,88 +108,235 @@ hotels_corrected_type <- hotels %>%
 ```
 
 
+
+<center>
+
 ```{r data-type, cache = TRUE, fig.cap= "Data Type Visualization"}
 vis_dat(hotels_corrected_type, warn_large_data = FALSE)
 ```
+</center>
+
+
+
 Figure \@ref(fig:data-type) portrays that the variables have been in a correct type.
+
+
 
 
 # Analysis
 
 
-## Exploration of Market Segment
+## Exploring the Hotels' Market Segment
 
-```{r market-segment-change}
+
+According to @meier, a relevant market segment is one of the key to be successful in hotel management, especially to set the price correctly. Therefore, it is essential to define the distribution of these hotels market segment. 
+
+Figure \@ref(fig:market-segment-change) shows that the number of bookings from Online Travel Agent (OTA) increased from 2015-2017 both in the city and resort hotel. In the city hotel, the rise of the number of bookings from OTA has doubled from 2015 to 2016 and replaced the domination of group bookings. In the resort hotel, OTA booking has been dominating since the beginning of the period observed. 
+
+A study from [Phocuswright](https://www.pegs.com/blog/why-do-travelers-prefer-booking-with-otas/) in @pegs stated that one of the major reason of why do the people book trough OTA is beacuse the website is easy to use. Meanwhile, @howe argued that OTAs are favorable because its easy booking option. According to @jedina2017exploring in @TalwarShalini2020Wdpp, the factors for booking the hotel through OTA are the accessibility, pricing, review accountability, and the customer services. 
+
+
+<center>
+
+```{r market-segment-change, fig.cap = "The distribution of hotel market segment by year"}
 
 ms_change <- ggplot(hotels_corrected_type) +
   geom_bar(aes(x = arrival_date_year, 
                fill = market_segment), 
            position = "fill") +
-  facet_wrap(~hotel)
+  facet_wrap(~hotel) +
+  xlab("Year") +
+  ylab("Proportion") +
+  theme(legend.title = element_blank(),
+        text = element_text(size = 8))
 
 ggplotly(ms_change)
 
 
+```
+</center>
 
+
+To gain a useful insight from the market segment, in this case to examine how much the OTA bookings would have contributed to hotels' revenue, we need to know the distribution the ADR from each market segment. However, we would only use the data from the actual guests, which is the guests who did not cancel the booking, since only this kind of bookings that would bring the actual revenue for the hotels. In addition, since the OTA bookings had its highest share in 2017 (more than 50 percent), we would only use this year to examine the pattern of the ADR related to the OTA bookings. 
+
+
+```{r}
+hotels_corrected_type <- hotels_corrected_type %>%
+  mutate(is_canceled_new = if_else(
+           condition = is_canceled == 0,
+           true = "not canceled",
+           false = "canceled"))
 ```
 
 
-We need to know the distribution the ADR 
+<center>
 
+```{r is-canceled-ms, fig.cap = "The hotels cancellation rate by market segment in 2017"}
 
-from Online TA since most of the booking from this market segment compared to other major market segment. However, in order to examine how the Online TA bookings have contributed to the hotel's revenue, we would only use the data from the actual booking (the not canceled bookings). Besides, we would use the data from 2017 only, since the Online TAs have taken majority of bookings in both hotel in this year.
-
-```{r is_canceled_ms}
-ggplot(filter(hotels_corrected_type, arrival_date_year == 2017)) +
+is_canceled_ms <- ggplot(filter(hotels_corrected_type, arrival_date_year == 2017)) +
   geom_bar(aes(x = hotel,
-               fill = is_canceled),
+               fill = is_canceled_new),
            position = "fill") +
-  facet_wrap(~market_segment)
+  facet_wrap(~market_segment) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        text = element_text(size = 8)) +
+  ylab("Proportion") +
+  xlab("") 
+
+ggplotly(is_canceled_ms)
+
 ```
 
+</center>
 
-From graph above, we could see that despite the high number of booking from Online TA, the cancellation rate from this market segment is also high compared to the other market, except for the group bookings especially in city hotel. Hence, we should examine the distribution of hotel guests from the actual booking only. 
-
+From Figure \@ref(fig:is-canceled-ms), we could see that despite the high number of booking from Online TA, the cancellation rate from this market segment is also high compared to the other market segment, except for the group bookings especially in the city hotel. Hence, we should examine the distribution of hotel guests from the actual booking only. In addition, this figure also suggest that the hotel management should apply a more strict cancellation policy given the high number of cancellation, especially from the OTA. 
 
 ```{r actual_guest}
 actual_guest <- hotels_corrected_type %>%
   filter(is_canceled == 0)
 ```
 
-```{r actual_guest_ms}
-ggplot(filter(actual_guest, arrival_date_year == 2017)) +
+
+<center>
+
+```{r actual-guest-ms, fig.cap= "The distribution of actual guest by market segment in 2017"}
+
+actual_guest_ms <- ggplot(filter(actual_guest, arrival_date_year == 2017)) +
   geom_bar(aes(x = hotel, 
                fill = market_segment), 
-           position = "fill")
+           position = "fill") +
+  theme(legend.title = element_blank(),
+        text = element_text(size = 8)) +
+  ylab("Proportion") +
+  xlab("") 
+
+ggplotly(actual_guest_ms)
 ```
 
-Meal distribution
+</center>
 
-```{r meal-dist}
-ggplot(filter(actual_guest, arrival_date_year == 2017)) +
+
+Figure \@ref(fig:actual-guest-ms) conveys that most guest in both hotels made the bookings from OTA, although the cancellation rate from this market segment was also high. The reason might because the portion was already big and the other categories also made cancellations. Since *complementary*, *aviation*, and *corporate* categories share fewer proportion of bookings compared to the other, we would recode these categories into *other* category.
+
+
+```{r recode}
+actual_guest <- actual_guest %>%
+  mutate(market_segment_new = case_when(
+    str_detect(market_segment, "Aviation") ~ "Other",
+    str_detect(market_segment, "Corporate") ~ "Other",
+    str_detect(market_segment, "Complementary") ~ "Other",
+    str_detect(market_segment, "Direct") ~ "Direct",
+    str_detect(market_segment, "Groups") ~ "Groups",
+    str_detect(market_segment, "Offline TA/TO") ~ "Offline TA/TO",
+    str_detect(market_segment, "Online TA") ~ "Online TA"))
+
+
+#check if there is a miss recode
+#filter(actual_guest, is.na(market_segment_new))
+```
+
+
+In the dataset, we do not have any information about the ADR by the room type and by the meal. In fact, these to variables would determine the booking rate. Therefore, in order to get unbiased insight, we would analyze the ADR only in the most booking meal. Figure \@ref(fig:meal-dist) suggests that the most booked meal category is the Bed and Breakfast (BB). 
+
+<center>
+
+```{r meal-dist, fig.cap= "The distribution of bookings by meal in 2017"}
+
+meal_dist <- ggplot(filter(actual_guest, arrival_date_year == 2017)) +
   geom_bar(aes(x = hotel,
                fill = meal),
-           position = "fill")
-```
-```{r adr-pp-cal}
-actual_guest <- actual_guest %>%
-  mutate(adr_pp = adr / (adults + children + babies))
-```
-
-
-```{r adr-ms}
-
-ggplot(filter(actual_guest, arrival_date_year == 2017 & meal == "BB" & adr != 0)) +
-  geom_boxplot(aes(x = market_segment,
-               y = adr, fill = market_segment)) +
-  facet_grid(hotel ~ assigned_room_type) +
+           position = "fill") +
+  xlab("") +
+  ylab("Proportion") +
   theme(legend.position = "bottom",
-        axis.text.x=element_blank(),
-        axis.ticks.x = element_blank())
+        legend.title = element_blank(),
+        text = element_text(size = 8))
+
+ggplotly(meal_dist)
+  
+```
+</center>
+
+
+
+```{r adr-null}
+
+adr_null <- filter(actual_guest, adr == 0)
+
+p_adr_null <- round(nrow(adr_null)/nrow(actual_guest)*100, 2)
+
+```
+
+
+There is no information of the currency used in the ADR variable. Thus, we assume that the ADR is stated in Euro since these hotels located in Portugal. In this variable, we also found 0 value (`r p_adr_null` percent of the data) but we did not find any further information about it. We assumed that it could be the free stay vouchers which are given to the guests. We would not include this observations in the analysis because it would not contribute to the hotels' revenue.  
+
+Figure \@ref(fig:adr-ms) shows that the distribution of ADR based on the market segment across room type is heterogeneous.  We could also found many outlier observations. Figure \@ref(fig:adr-ms) also suggests that in the city hotel, the bookings from OTA were found to have the highest median of ADR in the A, D, E, F, K rooms (5 out of 8 room types). Direct category had the highest median of ADR in two room types, namely C and G. In the resort hotel, the bookings from OTA also had the highest median of ADR in 6 out of 9 types of room. The highest ADR median in the other room types were made by direct booking. 
+
+
+<center>
+
+```{r adr-ms, fig.width = 10, fig.height=7, fig.cap = "The distibution of ADR by assigned room type with BB meal in city and resort hotel in 2017"}
+
+adr_ms <- ggplot(filter(actual_guest, arrival_date_year == 2017 & meal == "BB" & adr != 0)) +
+  geom_boxplot(aes(x = market_segment_new,
+               y = adr, fill = market_segment_new)) +
+  facet_grid(hotel ~ assigned_room_type) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank(),
+        text = element_text(size = 8)) +
+  ylab("ADR (Euro)") +
+  xlab("")
+
+
+#centering the legend position
+ggplotly(adr_ms) %>%
+  layout(legend = list(orientation = "h",
+                       x = 0.2, y = -0.1))
+  
+```
+
+</center>
+
+
+We were curious whether the ADR of OTA bookings, which is relatively higher than the other market segments, is because of the bookings from OTA were increasing across the years. Thus, we examine the ADR distribution of OTA bookings through the years. We found in Figure \@ref(fig:ota-boxplot) that in the resort hotel, there is no noticeable trend of the ADR of OTA bookings. Meanwhile, in the city hotel, we could notice that except in the room type C, the ADR of OTA has increased from 2015-2017. It might be that the city hotel management has used the insight from the market segment to manage the price of the room to gain more revenue. 
+
+This finding, is actually in line with the result of the consumer research from [Which?](https://www.theguardian.com/money/2020/mar/04/travellers-may-lose-out-by-booking-hotels-online-says-which) in @hern which stated that the travelers are paying up more for the hotel room through online booking. From this finding, we could also learn that from the customer perspective, it is might be better to book the hotel through group booking or offline travel agent because it is cheaper. 
+
+
+```{r ota-boxplot, fig.width = 10, fig.height=7, fig.cap = "The distribution of OTA bookings ADR by room type with BB meal from 2015-2017 in the city and resort hotel "}
+
+
+ota_boxplot <- ggplot(filter(actual_guest, meal == "BB" & adr != 0 & market_segment == "Online TA")) +
+  geom_boxplot(aes(x = arrival_date_year,
+               y = adr, fill = arrival_date_year)) +
+  facet_grid(hotel ~ assigned_room_type) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x = element_blank()) +
+  ylab("ADR (Euro)") +
+  xlab("")
+
+ggplotly(ota_boxplot) %>%
+  layout(legend = list(orientation = "h",
+                       x = 0.3, y = -0.1))
+
 ```
 
 
 
+From these exploration, we could tell that there was a positive trend of the number of guests who made the bookings through the online travel agent both in the city and resort hotels. In the end of the period of observation, which is in 2017, bookings from OTA has dominated the hotels market segment. 
+
+In addition, since the median of ADR from OTA is the highest in most room types for the same type of meal, we could infer that the OTA bookings had been being a valuable resource of revenue for both hotels. In the city hotel, the trend seemed to be harnessed by the hotel management to also increase the ADR of OTA from 2015 to 2017. 
+
+
+## Where Are The Bookings Come From?
+
+In this section, we would explore the hotel bookings 
 
 
 
+
+# Conclusion
+
+# References
