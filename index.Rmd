@@ -22,6 +22,7 @@ knitr::opts_chunk$set(echo = FALSE,
 library(tidyverse)
 library(lubridate)
 library(kableExtra)
+library(gridExtra)
 ```
 
 # Introduction and motivation
@@ -107,16 +108,29 @@ hotel_mngt <- hotels %>%
   mutate(hotel = as.factor(hotel))
 ```
 
-### Who are staying at the hotels?
+### Who are staying at the hotels? How are the prices different?
 
 ```{r customer-type}
-
+customer_type <- hotel_mngt %>%
+  # filter to check-out bookings only to ensure real number
+  filter(reservation_status == "Check-Out") %>%
+  select(hotel, customer_type, adr) %>%
+  group_by(hotel, customer_type) %>%
+  summarise(count = n(),
+            avg_adr = mean(adr))
+  
 ```
 
 
 ### Which channels hotels are selling through and at which price?
 ```{r channel}
-
+distribution <- hotel_mngt %>%
+  # filter to check-out bookings only to ensure real number
+  filter(reservation_status == "Check-Out") %>%
+  select(hotel, market_segment, adr) %>%
+  group_by(hotel, market_segment) %>%
+  summarise(count = n(),
+            avg_adr = mean(adr))
 ```
 
 
@@ -124,6 +138,9 @@ hotel_mngt <- hotels %>%
 ### The high and low season: 
 Booking and ADR by months, if possible guests type
 
+```{r season}
+
+```
 
 
 ### Reservation status
@@ -193,25 +210,18 @@ Let's first put our common sense to test for some of the variables presented in 
 
 #### How do the cancellations have in common?
 
-The Hotel's PMS recored the _lead time_, which is the number of days elapse between the entering date of the booking into the system and the arrival date, the _reservation status date_ and the _days in waiting list_, which is the number of days before the booking was confirmed with the customers. We computed the following days:
-
-- the _days_status_to_arrival_: the number of days elapsed between the confirmed reservation status date and the arrival date. This number is expected to be 0 for check-out bookings and smaller than 0 for No-Show and Cancellation. This is computed as **reservation_status_date - arrival_date**.  
-- the _days_in_system_: the number of days elapsed between the entering date of the booking into the system and the confirmed reservation status date. This is computed as **leap_time - days_status_to_arrival**.  
-
-W
+The Hotel's PMS recored the _lead time_, which is the number of days elapse between the entering date of the booking into the system and the arrival date, the _reservation status date_ and the _days in waiting list_, which is the number of days before the booking was confirmed with the customers. A high days in waiting list indicating that a booking takes longer to proceed and a high lead time indicating that the booking was made earlier prior to the arrival date.  
 
 ```{r}
 cancel_only <- hotel_mngt %>%
   filter(reservation_status == "Canceled") %>%
-  select(-arrival_date_week_number) %>%
-  mutate(days_status_to_arrival = abs(as.numeric(reservation_status_date - arrival_date)),
-         days_in_system = as.numeric(lead_time - days_status_to_arrival))
+  select(-arrival_date_week_number)
 ```
 
 ```{r system-days, fig.cap = "System days of cancellation bookings"}
 # visualise the days in system and cancellation day
 cancel_only %>%
-  select(hotel, days_in_system, days_in_waiting_list, lead_time) %>%
+  select(hotel, days_in_waiting_list, lead_time) %>%
   pivot_longer(-hotel, names_to = "system_day", values_to = "days") %>%
   ggplot(aes(x = system_day, y = days, fill = hotel)) +
   geom_boxplot() +
@@ -220,48 +230,121 @@ cancel_only %>%
   labs(title = "System days of cancelled bookings")
 ```
 
-City hotel seems to outdo resort hotel in every aspects. This does not really tell us anything considering that city hotel having a higher cancellation rate, how about looking at the cancellation side by side with the check-out?
+Both hotels seems to proceed customers' bookings with great speed with the median waiting days around 0 days. However, city hotel had a lot of cancelled bookings that sat through a significantly high number of days in the system before they were confirmed to the customers. On an other note, city hotel had a high range of lead time and days in the system, signalling that bookings which were made too early prior arrival time may have higher chance of being cancelled.
+
+We will look futher at this assumption, but this time comparing check-out with cancelled bookings to verify the impact of lead time and days in waiting list on the cancellation rate.  
+
 
 **Check-out vs Cancelled**
+
+We want to compare the days in waitng list and days in system for both hotels. Will a booking that takes too long to proceed (high days in waiting list) or is made too early before the arrival date (high lead time) more prone to cancellation?
 
 ```{r checkout}
 status_compare <- hotel_mngt %>%
   filter(!reservation_status == "No-Show") %>%
-  select(-arrival_date_week_number) %>%
-  mutate(days_status_to_arrival = abs(as.numeric(reservation_status_date - arrival_date)),
-         days_in_system = as.numeric(lead_time - days_status_to_arrival))
+  select(-arrival_date_week_number)
 ```
 
-```{r checkout-plot}
+```{r checkout-plot, fig.cap = "System days of Check-out and Canceled"}
 status_compare %>%
-  select(hotel, reservation_status,lead_time, days_in_system, days_in_waiting_list) %>%
+  select(hotel, reservation_status,lead_time, days_in_waiting_list) %>%
   pivot_longer(-c(hotel, reservation_status), names_to = "system_day", values_to = "days") %>%
   ggplot(aes(x = system_day, y = days, fill = reservation_status)) +
   geom_boxplot() +
-  facet_wrap(~hotel) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   xlab("Type of days") +
-  labs(title = "System days of bookings")
-  
+  labs(title = "System days of bookings") +
+  scale_fill_brewer(palette="Dark2")
 ```
 
-Beware of bookings with long in-system period. Lead time may have effect on the cancellation rate
+At the first glance at figure \@ref(fig:checkout-plot), both types of bookings still maintained a median days of waiting as 0 days, cancelled bookings had a lower days in system compared to check-out, which was no surprises as cancellations usually are done days before the arrival date. However, lead time for cancelled bookings were much higher than of Check-out, except for the two outliners of check-out which exceed 650 days. This confirmed our assumption of lead time having an impact on the cancellation chance. The earlier the booking, the higher chance of cancellation. 
 
-```{r lead-time}
+#### The one who got away
 
+Having known which kind of the bookings are more likely to get cancelled, we are interested in knowing who were the one behind those bookings. We started by looking at the market segment of these cancellation:
+
+```{r guest-anatomy}
+cancel_anatomy <- hotel_mngt %>%
+  select(- arrival_date_week_number, - arrival_date_month, - arrival_date_year, - reservation_status, - 
+           reservation_status_date, hotel, market_segment, agent, arrival_date, deposit_type, 
+         previous_cancellations, previous_bookings_not_canceled, required_car_parking_spaces, 
+         total_of_special_requests, reservation_status)
+
+cancel_mkt_segment <- cancel_anatomy %>%
+  select(market_segment, reservation_status, hotel) %>%
+  group_by(hotel, market_segment, reservation_status) %>%
+  count() %>%
+  pivot_wider(names_from = reservation_status, values_from = n, values_fill = 0) %>%
+  ungroup() %>%
+  mutate(total_booking = Canceled + `No-Show` + `Check-Out`,
+         percent_cancel = round(Canceled/total_booking*100,2)) %>%
+  arrange(desc(percent_cancel))
 ```
 
-
-**Who got the cold face?**
-```{r}
-customer_type <- hotel_mngt %>%
-  select(- arrival_date_week_number) %>% 
-  
+```{r guest-anatomy-plot, fig.cap = "Who are more likely to cancel?"}
+cancel_mkt_segment %>%
+  filter(!market_segment == "Undefined") %>%
+  ggplot(aes(x = fct_reorder(market_segment, percent_cancel), y = percent_cancel)) +
+  geom_bar(stat = "identity", fill = "#006DAE") +
+  geom_text(aes(label = percent_cancel, hjust = 1), color = "white") +
+  theme_classic() +
+  coord_flip() +
+  facet_wrap(~hotel) +
+  xlab("market segment") +
+  ylab("cancel percantage") +
+  labs(title = "Cancellation rate by market_segment")
 ```
 
+We calculate the cancellation rate by taking the _number of cancellation bookings_ divided by _total bookings_ for each market segment. From figure \@ref(fig:guest-anatomy-plot), we see that Groups had an impressive rate of cancellation at 68.44% for City hotel and 42.14% for Resort, followed by Travel agency/ tour operator (both offline and Online). City hotel noticably had the top 3 cancellation percentage at a much higher level than Resort. Aviation or Air crew only showed up in City hotel, which actually made sense as airlines only need a place for their air crew to stay over and it does not have to be at a fancy resort. 
+
+Now that we know Groups were mostly the ones who defaulted the most, we hope to know the why they did what they did, i.e cancelled their bookings. Was this because of the deposit policy or their requests not being fullfilled? We moved on to look at deposit and other guest'sspecial requests in search for the reasons. 
+
+#### Deposit policy
+
+We gathered all the cancelled bookings and divided them by their deposit type.  
+
+```{r deposit}
+cancel_deposit <- cancel_anatomy %>%
+  select(reservation_status, deposit_type) %>%
+  group_by(reservation_status, deposit_type) %>%
+  count(name = "count")
+```
+
+```{r deposit-plot, fig.cap = "Deposit type" }
+p1 <- cancel_deposit %>%
+  filter(reservation_status == "Canceled") %>%
+  ggplot(aes(x = deposit_type, y = count, fill = deposit_type)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  labs(title = "Cancellation by deposit count") +
+  xlab("deposit type")
+
+p2 <- cancel_anatomy %>%
+  select(reservation_status, deposit_type) %>%
+  group_by(deposit_type, reservation_status) %>%
+  count(name = "count") %>%
+  pivot_wider(names_from = reservation_status, values_from = count, values_fill = 0) %>%
+  mutate(prop_cancel = round(Canceled/(Canceled+`Check-Out`+`No-Show`),3)) %>%
+  ggplot(aes(y = prop_cancel, x = deposit_type, fill = deposit_type)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  labs(title = "Cancellation by deposit percentage") +
+  xlab("deposit type") 
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Figure \@ref(fig:deposit-plot) showed us something really interesting. If we looked at the absolute numbers of cancellation by counting the number of canceled bookings for each deposit type (left plot), we will have _no deposit_ as the highest with _non - refund_ followed by roughly a half. This came as no surprise as nowadays people were not expected to deposit for their stays, which made them more likely to cancel their bookings without spending a penny.  
+However, if we looked at the cancel rate by deposit type which we took the canceled bookings divided by all the bookings under each deposit type (right plot), we had a quite counter-intuitive discover. The _non_refund_ now had the highest rate of cancellation, leaving the other two types far behind. This implied that people actually canceled the bookings that they had paid in advance! This insight called for further investigation, ideally with a different dataset of a a different hotel to verify its validity.
 
 
-#### Bad, bad customer
+# Conclusion
+
 
 
 
