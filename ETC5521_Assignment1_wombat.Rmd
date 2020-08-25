@@ -19,6 +19,11 @@ library(visdat)
 library(skimr)
 library(plotly)
 library(gridExtra)
+library(countrycode)
+library(DT)
+library(maps)
+library(viridis)
+library(viridisLite)
 ```
 
 # Introduction
@@ -249,9 +254,7 @@ meal_dist <- ggplot(filter(actual_guest, arrival_date_year == 2017)) +
            position = "fill") +
   xlab("") +
   ylab("Proportion") +
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        text = element_text(size = 8))
+  theme(text = element_text(size = 8))
 
 ggplotly(meal_dist)
   
@@ -329,10 +332,226 @@ From these exploration, we could tell that there was a positive trend of the num
 
 In addition, since the median of ADR from OTA is the highest in most room types for the same type of meal, we could infer that the OTA bookings had been being a valuable resource of revenue for both hotels. In the city hotel, the trend seemed to be harnessed by the hotel management to also increase the ADR of OTA from 2015 to 2017. 
 
+<br>
+<br>
 
-## Where Are The Bookings Come From?
+## Where Did The Bookings Come From?
 
-In this section, we would explore the hotel bookings 
+Another way to gain more insight about the market is to examine the origin of the travelers that book the hotel room. It is important to understand their behavior and preference. Hence, the businesses are able to develop strategies to attract them. 
+
+```{r country-check}
+
+# check if there is undefined country in the hotel bookings
+
+#dplyr::distinct(hotels_corrected_type, country)
+
+# Apparently, there is also a null observation in the country name. 
+# We would like to know the percentage of this null country observation.
+
+null_country <- hotels_corrected_type %>% filter(country == "NULL")
+p_null_country <- round(nrow(null_country)/ nrow(hotels_corrected_type) * 100, 3)
+
+
+```
+
+Firstly, we would like to observe the distribution of the country of the origin of the bookings in both hotel. This dataset indeed does not have any missing value, but it has a NULL value, which means that we can not gain any insight from these observations. Thus, before doing the analysis, we check for the NULL value in the country variable first. We found that `r p_null_country` percent of observations have a NULL value in their country variable. In this case we omitted these observations because the number of observations is large enough and the proportion of NULL cases is relatively small [@KangHyun2013Tpah].
+
+```{r bookers-table}
+
+book_origin <- hotels_corrected_type %>% filter(country != "NULL") %>% 
+  group_by(country) %>%
+  count(country) %>%
+  arrange(desc(n)) %>%
+  ungroup
+
+# The country comes in ISO3 name, in order to get better interpretation, we recode the country to its actual name
+
+country_name <- countrycode(book_origin$country, "iso3c", "country.name")
+
+book_origin_new <- cbind(book_origin, country_name)
+
+#countrycode function could not find the match of "CN" and "TMP", so we changed it manually
+
+book_origin_new[13,3] = "CN"
+book_origin_new[130,3] = "East Timor"
+
+col_order <- c("country", "country_name", "n")
+
+book_origin_table <-  book_origin_new[, col_order]
+
+```
+
+
+Figure \@ref(fig:bookings-map) provided the map of the bookings origin country to get a better view of the distribution of the bookings. 
+
+<center>
+
+```{r bookings-map, fig.cap = "The distibution of travelers origin who books the hotels in 2015-2017"}
+
+world_map <- map_data("world")
+bookings_map_dat <- left_join(book_origin_table, world_map, by = c("country_name" = "region"))
+
+bookings_map <- ggplot(bookings_map_dat, aes(long, lat, group = group))+
+  geom_polygon(aes(fill = n ), color = "white") +
+  scale_fill_viridis("C")+
+  theme_bw()
+
+ggplotly(bookings_map)
+
+```
+
+</center> 
+
+If we hover to the map, we found that the bookings came from most of the country across the world. In order to get a detail view, we provided the table of the bookings country of origin. The table suggests that the bookings came from `r nrow(book_origin_table)` different countries. 
+
+<br>
+
+```{r origin_table}
+DT::datatable(book_origin_table, colnames = c("Country Code", "Country Name", "Number of Bookings"),
+              caption = "The number of hotel bookings based on bookings country of origin")
+```
+
+<br>
+
+
+The country fact conveys that by country-wise, most bookings were from Portugal. However the number of bookings made by international traveler are also a lot, especially from the European countries. In the further analysis, we would categorize the bookings into two categories: "local" and "international".  
+
+```{r mutate-origin}
+
+# Create new variable which categorize the origin of travelers.
+# We omitted the country observations that are equal to NULL
+
+origin_cat <- hotels_corrected_type %>%
+  filter(country != "NULL") %>%
+  mutate(origin = if_else(
+           condition = country == "PRT",
+           true = "local",
+           false = "international"))
+```
+
+
+
+<center>
+
+```{r origin-plot, fig.cap = "Bookings in city and resort hotel by country of origin 2015-2017"}
+
+origin_plot <- ggplot(origin_cat) +
+  geom_bar(aes(x = arrival_date_year, 
+               fill = origin), 
+           position = "fill") +
+  facet_wrap(~hotel) +
+  xlab("Year") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8))
+
+ggplotly(origin_plot)
+
+```
+
+</center>
+
+<br>
+
+Figure \@ref(fig:origin-plot) portrays that the international booking was dominating in both hotels and shows a positive trend from 2015-2017. Somehow, the pattern is quite similar the pattern of the bookings that made by OTA in the Figure \@ref(fig:market-segment-change). Therefore it is interesting to examine the market segment of the international bookings. 
+
+<center>
+
+```{r origin-ms}
+
+origin_ms <- ggplot(filter(origin_cat, origin == "international")) +
+  geom_bar(aes(x = arrival_date_year, 
+               fill = market_segment), 
+           position = "fill") +
+  facet_wrap(~hotel) +
+  xlab("Year") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8))
+
+ggplotly(origin_ms)
+
+
+```
+
+</center>
+
+<br>
+
+Apparently, vast majority of international bookings were made with OTA in both hotels, the trend was also upward. Moreover, in the city hotel, the growth was sharp in 2016, more than twice. This fact, once again, proved the OTA dominance in the hospitality industry.
+
+Did the international travelers pay more than the local travelers? It is an interesting question since most of bookings came from abroad. To answer this question we would only, again, using the data from actual bookings. In addition, to avoid bias in the interpretation, we would only use the observations from the same room type and meal category. According to Figure \@ref(fig:meal-room-dist), we would use the observations with "BB" meal booking and from room type "A" due to the huge portion of these categories in both hotels.
+
+<center>
+
+```{r meal-room-dist, fig.cap = "Meal and moom type distribution of hotels' guests", fig.width=10}
+
+meal_dist_origin <- ggplot(filter(origin_cat, is_canceled == 0)) +
+  geom_bar(aes(x = hotel,
+               fill = meal),
+           position = "fill") +
+  xlab("") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8)) +
+  facet_wrap(~ arrival_date_year) +
+  ggtitle("Meal distribution")
+
+
+room_dist_origin <- ggplot(filter(origin_cat, is_canceled == 0)) +
+  geom_bar(aes(x = hotel,
+               fill = assigned_room_type),
+           position = "fill") +
+  xlab("") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8)) +
+  facet_wrap(~ arrival_date_year) +
+  ggtitle("Room type distribution")
+
+
+
+grid.arrange(meal_dist_origin, room_dist_origin, ncol = 2)
+
+```
+
+</center>
+
+<br>
+
+```{r adr-origin-filter}
+
+adr_origin <- filter(origin_cat, is_canceled == 0 & meal == "BB" & assigned_room_type == "A")
+```
+
+
+```{r origin-ADR, eval = FALSE}
+
+
+
+ggplot(adr_origin, aes(x = adr, 
+                       fill = origin,
+                       color = origin)) + 
+  geom_histogram(aes(y = ..density..), 
+                 position = position_dodge(), 
+                 binwidth = 20 ) +
+  geom_density(alpha = 0.2) + 
+  labs(x = "Hotel Price(in Euro)",
+       y = "Count") + scale_color_brewer(palette = "Paired") + 
+  facet_wrap(~hotel)
+
+```
+
+
+```{r}
+ggplot(adr_origin) +
+  geom_boxplot(aes(x = origin,
+               y = adr, fill = origin)) +
+  facet_wrap(~ hotel)
+```
+
+
+
+
+## Family Matters
+
+
 
 
 
