@@ -87,13 +87,32 @@ vis_dat(hotels, warn_large_data = FALSE)
 </center>
 
 
-Figure \@ref(fig:missing-vals-check) shows that there is no missing value in the dataset. It is inline with what @AntonioNuno2019Hbdd stated that there is no missing values in the database table. However, some "NULL" values were presented which should be interpreted as "not applicable", not a missing value [@AntonioNuno2019Hbdd]. For example, if the the **company** value is NULL, it means that the booking was not made by a company.  
+```{r children-missing, eval = FALSE}
+
+children_missing <- naniar::where_na(hotels$children)
+
+```
 
 
-### Data type checking
+
+Figure \@ref(fig:missing-vals-check) shows that there is no missing value in the dataset. It is inline with what @AntonioNuno2019Hbdd stated that there is no missing values in the database table. However, some "NULL" values were presented which should be interpreted as "not applicable", not a missing value [@AntonioNuno2019Hbdd]. For example, if the the **company** value is NULL, it means that the booking was not made by a company.
+
+In `children` variable, when we checked the missing value using `naniar::where_na()` function by @naniar, we found that there are `r naniar::n_miss(hotels$children)` observations that are actually missing. Figure \@ref(fig:missing-vals-check) may did not capture it because the proportion is too low (`r naniar::n_miss(hotels$children)` out of `r nrow(hotels)` observations). We then treated these missing values by imputing it with the average of children (mean imputation) [@KangHyun2013Tpah] and created new variable called `imputed_children`. 
 
 
-Figure \@ref(fig:missing-vals-check) also conveys the type of the variables in the dataset. We could see that a lot of variables (such as *hotel*, *distribution_channel*, and *is_canceled*) have incorrect type. Those variables should be a factor/categorical instead of a character or numeric variables. Therefore, the type of the data should be corrected before doing the analysis. 
+```{r imputing-ms}
+
+average_children <- round(mean(hotels$children, na.rm = TRUE), 0)
+
+imputed_children <- replace_na(hotels$children, average_children)
+
+hotels <- cbind(hotels, imputed_children)
+```
+
+### Data Transformation
+
+
+Figure \@ref(fig:missing-vals-check) also conveys the type of the variables in the dataset. We could see that a lot of variables (such as *hotel*, *distribution_channel*, and *is_canceled*) have incorrect type. Those variables should be a factor/categorical instead of a character or numeric variables. Therefore, the type of the data should be corrected before doing the analysis. We transformed the data type using `mutate` function from `tidyverse` @tidyverse and `as.factor` function from R built-in `base` package [@rcite]. Figure \@ref(fig:data-type) portrays that the variables have been in a correct type.
 
 ```{r}
 hotels_corrected_type <- hotels %>%
@@ -124,15 +143,41 @@ vis_dat(hotels_corrected_type, warn_large_data = FALSE)
 ```
 </center>
 
+We also created some variables that we would use for the analysis. Those are: 
+
+1. 
+2. `is_canceled_new`. This variable is actually the same with `is_canceled`. We only recoded the value from 0 and 1 to be "not canceled" and "canceled" in order to make it easier to interpret. 
+3. `lengt_of_stay` is the number of days that the guests spend in the hotel. It is the summation of `stays_in_weekend_nights` and `stays_in_week_nights` variable.
+4. `stay_on` is a categorical variable to observe whether the guests stayed in weekend, weekday, or both. 
+5. `number_of_guest` is a summation of `adults`, `imputed_children`, and `babies` variables. 
+6. `kids` is a summation of `imputed_children` and `babies` variables.
+7. `family_type` is a categorical variable to observe whether the guest stayed with kids or not. 
+
+The `lengt_of_stay` and `stay_on` would be used to analyze the staying pattern on the guests. Whilst `number_of_guest`, `kids`, and `family_type` would be used to analyze the type of guest who stayed at the hotel. Moreover, the dataset only provides the country of bookings with country codes coded in ISO code. Hence, we transform these code to the country name using `countrycode` package [@countrycode]. 
 
 
-Figure \@ref(fig:data-type) portrays that the variables have been in a correct type.
+
+```{r}
+hotels_corrected_type <- hotels_corrected_type %>%
+  mutate(is_canceled_new = if_else(
+           condition = is_canceled == 0,
+           true = "not canceled",
+           false = "canceled"),
+         length_of_stay = stays_in_weekend_nights + stays_in_week_nights,
+         stay_on = ifelse(stays_in_weekend_nights != 0 & stays_in_week_nights != 0, "Weekday and Weekend",
+                          ifelse(stays_in_weekend_nights != 0 & stays_in_week_nights == 0, "Weekend", "Weekday")),
+         number_of_guest = adults + imputed_children + babies,
+         kids = imputed_children + babies,
+         family_type = ifelse(kids != 0, "family", "not family"))
+```
 
 
-
+<br>
+<br>
 
 # Analysis
 
+<br>
 
 ## Exploring the Hotels' Market Segment
 
@@ -166,17 +211,7 @@ ggplotly(ms_change)
 To gain more insight from the market segment, in this case to examine how much the OTA bookings would have contributed to hotels' revenue, we need to know the distribution the ADR from each market segment. However, we would only use the data from the actual guests, which is the guests who did not cancel the booking, since only this kind of bookings that would bring the actual revenue for the hotels. 
 
 
-```{r}
-hotels_corrected_type <- hotels_corrected_type %>%
-  mutate(is_canceled_new = if_else(
-           condition = is_canceled == 0,
-           true = "not canceled",
-           false = "canceled"),
-         length_of_stay = stays_in_weekend_nights + stays_in_week_nights,
-         stay_on = ifelse(stays_in_weekend_nights != 0 & stays_in_week_nights != 0, "Weekday and Weekend",
-                          ifelse(stays_in_weekend_nights != 0 & stays_in_week_nights == 0, "Weekend", "Weekday")),
-         )
-```
+
 
 
 <center>
@@ -368,7 +403,7 @@ book_origin_table <-  book_origin_new[, col_order]
 ```
 
 
-Figure \@ref(fig:bookings-map) provided the map of the bookings origin country to get a better view of the distribution of the bookings. 
+Figure \@ref(fig:bookings-map) provided the map of the bookings origin country to get a view of the distribution of the bookings. 
 
 <center>
 
@@ -388,7 +423,7 @@ ggplotly(bookings_map)
 
 </center> 
 
-If we hover to the map, we found that the bookings came from most of the country across the world. In order to get a detail view, we provided the table of the bookings country of origin. The table suggests that the bookings came from `r nrow(book_origin_table)` different countries. 
+If we hover to the map, we found that the bookings came from most of the country across the world. In order to get a detail view, we provided the table of the bookings country of origin. The table suggests that the bookings came from `r nrow(book_origin_table)` different countries.
 
 <br>
 
@@ -503,15 +538,21 @@ grid.arrange(meal_dist_origin, room_dist_origin, ncol = 2)
 ```{r adr-origin-boxplot, fig.cap="Distribution of ADR by guest origin in the city and resort hotel"}
 
 adr_origin <- filter(origin_cat, is_canceled == 0 & meal == "BB" & assigned_room_type == "A")
-ggplot(adr_origin) +
+
+adr_origin_boxplot <- ggplot(adr_origin) +
   geom_boxplot(aes(x = origin,
                y = adr, fill = origin)) +
-  facet_wrap(~ hotel)
+  xlab("Guests Origin") +
+  ylab("ADR (Euro)") +
+  facet_wrap(~ hotel) +
+  theme(text = element_text(size = 8))
+
+ggplotly(adr_origin_boxplot)
 ```
 </center>
 
 
-In Figure \@ref(fig:origin-plot), we found the fact that most bookings in both hotels are from international travelers and Figure \@ref(fig:adr-origin-boxplot) shows that they paid relatively more money than the locals in both types of the hotel. However, did they actually have a preference regarding the type of the hotel they want to stay at?
+In Figure \@ref(fig:origin-plot), we found the fact that most bookings in both hotels are from international travelers and Figure \@ref(fig:adr-origin-boxplot) shows that they paid relatively more money than the locals in both types of hotel. However, did they actually have a preference regarding the type of the hotel they want to stay at?
 
 
 
@@ -522,7 +563,10 @@ In Figure \@ref(fig:origin-plot), we found the fact that most bookings in both h
 origin_cat_hotel <- ggplot(filter(origin_cat, origin == "international" & is_canceled == 0)) +
   geom_bar(aes(x = hotel, 
                fill = hotel), 
-           position = "dodge")
+           position = "dodge") +
+  xlab("Hotel Type") +
+  ylab("Number of Bookings") +
+  theme(text = element_text(size = 8))
 
 ggplotly(origin_cat_hotel)
 
@@ -531,35 +575,111 @@ ggplotly(origin_cat_hotel)
 
 </center>
 
-Figure \@ref(fig:origin-cat-hotel) conveys that more international travelers chose to stay at the city hotel. It is definitely not because of the price since Figure \@ref(fig:adr-origin-boxplot) shows that the ADR of city hotel was higher than resort hotel. We wondered that may be these international travelers were business travelers or not. 
+Figure \@ref(fig:origin-cat-hotel) conveys that more international travelers chose to stay at the city hotel. It is definitely not because of the price since Figure \@ref(fig:adr-origin-boxplot) shows that the ADR of city hotel was higher than resort hotel. 
 
-According to 
-Hence, we would try to figure out the answer by looking at the distribution of the length and the time of stay. 
 
-We found that some observations have 0 in the `stay_weekday_nights` and the `stay_weekend_nights` variables. Hence, we would omit these observations from analysis. 
 
-```{r}
+### Business or Leisure or Bleisure? 
 
-ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
-  geom_boxplot(aes(y = length_of_stay, x = hotel))
+We wondered whether these international travelers were business travelers or not? The motivation to answer this question is pretty straightforward because according to @siteminder, business travelers could be a valuable long-term costumers for the hotel. In addition, nowadays, some travelers also like to extend their business trip for leisure (bleisure) and this kind of travelers are the prominent target market for hoteliers [@siteminder]. Hence, we would try to figure out the answer by: 1) looking at the distribution of the length and the time of stay and; 2) whether they were traveling with family (kids) or not. 
+
+
+```{r same-day-checkout}
+
+same_day_checkout <- origin_cat %>% filter(length_of_stay == 0 & is_canceled == 0 & reservation_status == "Check-Out")
+
+same_day_checkout_intl <- filter(same_day_checkout, origin == "international")
+p_same_day_checkout_intl <- round(nrow(same_day_checkout_intl)/nrow(same_day_checkout)*100, 2)
+  
+```
+
+During the exploration, we found an interesting case in which the guests did not spend any night in the hotel neither they canceled the bookings and no show. It means that the guest checked out in the same day they checked in. There are `r nrow(same_day_checkout)` actual bookings where the guests did a same day check out and we found that `r p_same_day_checkout_intl` percent are international bookings. 
+
+We observed further by checking the distribution of international guest who were really spend the nights at the hotels. We found in Figure \@ref(fig:length-of-stay-hist), that most guest in the city hotel spent 2 days in the city hotel. In addition, the length of stay of the guests in the city hotel was relatively shorter than the guest in the resort hotel. In the resort, the guests length of stay was also more heterogeneous. Hence, it might be true that these guests are business travelers. However, we should examine of when did the guests stay at most. We assumed that if they were travel for business, then they would travel in weekdays. 
+
+Figure \@ref(fig:when-stay-plot) shows that both in the city and resort hotel, the proportion of weekend stay bookings were the smallest. In the city hotel, most of international guests stayed in weekend and weekdays. It is also found in the resort hotel, but the portion was bigger. 
+
+<center>
+
+```{r length-of-stay-hist, fig.cap= "Length of stay of international guest"}
+
+length_of_stay_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
+  geom_histogram(aes(x = length_of_stay, fill = hotel), 
+                 binwidth = 2, 
+                 colour = "white",
+                 show.legend = FALSE) +
+  scale_x_continuous(breaks = seq(0, 70, by=5)) +
+  facet_wrap(~hotel) +
+  xlab("Length of Stay") +
+  ylab("Number of Bookings") +
+  theme(text = element_text(size = 8))
+
+ggplotly(length_of_stay_hist)
 
 ```
 
-```{r}
+</center>
 
-ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
+<br>
+
+<center>
+
+```{r when-stay-plot, fig.cap= "The distribution of time the guest book"}
+
+when_stay_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
   geom_bar(aes(x = hotel,
                fill = stay_on),
-           position = "fill")
+           position = "fill") +
+  xlab("Hotel Type") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8))
+  
+
+ggplotly(when_stay_plot)
 
 ```
+</center>
 
+Now, we want to look at whether these guest were traveling with kids, which we classified as family, or not. 
 
-## Family Matters
-
+<center>
 ```{r}
 
+family_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
+  geom_bar(aes(x = hotel,
+               fill = family_type),
+           position = "fill")
+
+ggplotly(family_plot)
+
 ```
+</center>
+
+
+
+
+<center>
+```{r, message = FALSE}
+
+number_of_guest_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international")) +
+  geom_histogram(aes(x = number_of_guest, fill = hotel),
+                 colour = "white",
+                 show.legend = FALSE) +
+  scale_x_continuous(breaks = seq(0, 100, by=2)) +
+  facet_wrap(~hotel) +
+  xlab("Number of Guest") +
+  ylab("Count") +
+  theme(text = element_text(size = 8))
+
+
+ggplotly(number_of_guest_hist)
+
+```
+</center>
+
+
+
+From this exploration, we could argue that there is a high chance that the international travelers who booked the hotel room were bleisure travelers. The reason are: first, they stayed in the city hotel, which is more expensive than the resort hotel; second, most of them were staying in the relatively short period of time both in the weekdays and weekend; and third,  most of them did not travel with kids. However, another investigation, which is not covered in this analysis, is needed to confirm this analysis result.  
 
 
 
