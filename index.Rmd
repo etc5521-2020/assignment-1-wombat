@@ -28,14 +28,20 @@ library(plotly) # REMEMBER TO ADD INTERACTIVE ELEMENTS
 
 # Introduction and motivation
 
+Obtaining data from hotel industry has always been a real challenge. While we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
 
-[FILL] Give the bigger picture of the data, and inspire the reader to learn more about the problem by reading your analysis. 
+The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
+
+In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scence. What can we learn about the way hotels manage their customers'info, how they priced our bookings or who are more likely to cancel their bookings. 
+
+We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis. 
+
 
 # Data description
 
 In 2018, Nuno Antonio, Ana de Almeida and Luis Nunes published a data article called "Hotel booking demand datasets" which introduced to the public two datasets for two hotels in Portugal, one resort in Algarve (H1) and one city hotel in Lisbon (H2). These datasets were originally collected to serve the development of prediction models to assess the hotels' likelihood of having their bookings cancelled, however the uses of variables included also allow other researching purposes. 
 
-The datasets for the two hotels can be downloaded separately at https://www.sciencedirect.com/science/article/pii/S2352340918315191. However, *jthomasmock* at _tidytuesday challenge_ had done us a favor and combined the two datasets into one. The two original datasets and the combined one can be obtained at https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md. 
+The datasets for the two hotels can be downloaded separately at https://www.sciencedirect.com/science/article/pii/S2352340918315191. However, *jthomasmock* at _tidytuesday challenge_ had done us a favor and combined the two datasets into one. The two original datasets and the combined one can be obtained at https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md. For this study, we used only the combined dataset.  
 
 The dataset is stored in a _csv_ file format with 32 variables and 119,390 observations (40,060 for H1 and 79,330 for H2). Each observation represents one hotel booking. The format of the dataset is as below:
 
@@ -92,8 +98,10 @@ You may notice that some variables contained the "NULL" values (eg: agent or com
 
 # Limitation
 
-* This dataset contained data for two specific hotels in Portugal. The lack of identity  
-Extra helpful info: number of rooms, occupancy, location, year built. 
+* This dataset contained data for two specific hotels in Portugal. Such limitation in study objects introduced challenges when we attempted to explain the trends observed as reasons could be hotel- specific and we could not use industry knowledge to cover.  
+* Some information of the hotels were not provided, for example the number of rooms, the occupancy rate, the location of the hotels (in the busy district or at the city suburban), years of operation or special events that might have occured. The lack of information might render some of our questions unanswered.  
+* Eventhough we were provided with the collection method, we were not be able to verify the validity and correctness of the data. We noticed during our analysis that some of the entries were not sensible and could very likely due to the input errors. However we were unable to verify such concern.  
+
 
 # Questions: Which factors would determine the cancellation rate?
 
@@ -158,9 +166,9 @@ season %>%
   scale_color_manual(values = c("#000080", "#FF0000"))
 ```
 
-The months are presented in the order of occurence in each year (July was the first year for each month) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) while in year 2, the highest was observed in the summer time (August and October). 
+The months are presented in the order of occurence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) while in year 2, the highest was observed in the summer time (August and October). 
 
-There were some anormalities, however, spotted where the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 while Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the limit information of the hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormalities cannot be explained and we believed it was hotel - specific rather than industry - specific. 
+There were some anormalities, however, spotted, of which the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 while Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
 
 Next we look at the **Average Daily Rate** or ADR in short. 
 
@@ -394,6 +402,7 @@ Table \@ref(tab:request) added more to the confusion when non-refund bookings ha
 
 # Conclusion
 
+In this study, we started with 
 
 
 
