@@ -7,7 +7,7 @@ author:
   - Dewi Lestari Amaliah
 date: "`r Sys.Date()`"
 output: 
-  html_document
+  bookdown::html_document2
 ---
 
 [This assignment is for ETC5521 Assignment 1 by Team `r rmarkdown::metadata$team` comprising of `r knitr::combine_words(rmarkdown::metadata$author)`.]{style="color:#006DAE;"}
@@ -23,6 +23,7 @@ library(tidyverse)
 library(lubridate)
 library(kableExtra)
 library(gridExtra)
+library(plotly) # REMEMBER TO ADD INTERACTIVE ELEMENTS
 ```
 
 # Introduction and motivation
@@ -88,7 +89,7 @@ Variables note:
 You may notice that some variables contained the "NULL" values (eg: agent or company variable). This "NULL" value did not mean the value was missing, rather such value did not exist to begin with; for example a booking may not have the ID of an agent or a company associated with it as such booking was made by an individual traveller.  
 
 # Limitation
-
+- Extra helpful info: number of rooms, occupancy, location, year built. 
 
 # Questions: Which factors would determine the cancellation rate?
 
@@ -103,44 +104,39 @@ hotel_mngt <- hotels %>%
   select(hotel, arrival_date, arrival_date_week_number,arrival_date_month, arrival_date_year, lead_time,
          previous_cancellations, previous_bookings_not_canceled, deposit_type, booking_changes,deposit_type,
          agent, days_in_waiting_list, required_car_parking_spaces, total_of_special_requests, 
-         reservation_status, reservation_status_date, customer_type, market_segment, adr) %>%
+         reservation_status, reservation_status_date, customer_type, market_segment, adr, is_repeated_guest) %>%
   # Tweaking a bit
   mutate(hotel = as.factor(hotel))
 ```
 
-### Who are staying at the hotels? How are the prices different?
 
-```{r customer-type}
-customer_type <- hotel_mngt %>%
-  # filter to check-out bookings only to ensure real number
+### The high and low season: 
+Booking and ADR by months, if possible market_segment, customer type
+
+```{r season}
+season <- hotel_mngt %>%
+  select(hotel, arrival_date_month, reservation_status, customer_type, market_segment, adr) %>%
+  # Choose successful bookings only to avoid distortion of adr
   filter(reservation_status == "Check-Out") %>%
-  select(hotel, customer_type, adr) %>%
-  group_by(hotel, customer_type) %>%
-  summarise(count = n(),
-            avg_adr = mean(adr))
+  # convert month to factor for plotting purpose
+  mutate(arrival_date_month = as.factor(arrival_date_month))
+
+# Count of bookings by months
+p3 <- season %>%
+  group_by(arrival_date_month, hotel) %>%
+  count() %>%
+  ggplot(aes(x = factor(arrival_date_month, levels = month.name), y = n, fill = hotel)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_alpha_identity()
+
+p3 + stat_summary(fun.y=mean, colour="red", geom="line", aes(group = 2))
+
+# ADR and guests by months
   
 ```
 
-
-### Which channels hotels are selling through and at which price?
-```{r channel}
-distribution <- hotel_mngt %>%
-  # filter to check-out bookings only to ensure real number
-  filter(reservation_status == "Check-Out") %>%
-  select(hotel, market_segment, adr) %>%
-  group_by(hotel, market_segment) %>%
-  summarise(count = n(),
-            avg_adr = mean(adr))
-```
-
-
-
-### The high and low season: 
-Booking and ADR by months, if possible guests type
-
-```{r season}
-
-```
+Would be nice if we can check the occupancy rate also 
 
 
 ### Reservation status
@@ -163,6 +159,8 @@ hotel_status %>%
   labs(title = "Reservation status by hotel type")
 ```
 
+NOTE: REMEMBER TO GROUP BY WEEK NUMBER RATHER THAN YEAR DUE TO INCONVENTIONAL YEAR COUNT. 
+
 Things to note about this plot:  
 - 2016 seems to be the best year for both hotels in terms of total bookings. --> figure out why  
 - Clearly city hotels have more bookings than resort hotel. Does that mean city hotels have more guests than resort hotel? Should check the LOS and number of guests/ rooms. Need a different section for this.  
@@ -179,6 +177,7 @@ We will look more in detail for each points:
 *1b. The higher the bigger?*
 
 *1c. The one who got away*
+
 Let's have a look at the dark-side of the hotel business - the cancellation. No hotels like cancellation, at least on a non - refund basis. How is the cancellation rate different from a city hotel to a resort?
 
 ```{r cancellation}
@@ -197,16 +196,6 @@ hotel_cancel %>%
 ```
 
 The overall cancelation rate of 3 years posed a striking difference between city hotel and resort: `r with(hotel_cancel, prop_cancel[match("City Hotel",hotel)])*100` percent vs `r with(hotel_cancel, prop_cancel[match("Resort Hotel",hotel)])*100` percent. What factor could possibly contribute to such difference? Did the problem come from the hotel itself or from whatever happened in the overall tourism industry at that point in time? 
-
-
---------- From here compared cancelled vs check-out----------------------------------------
-
-Let's first put our common sense to test for some of the variables presented in the dataset and cross check with our analysis in the later parts:  
-- Lead time and days in waiting list: will the booking times really mattered? Which bookings are more likely to be cancelled? The ones in the system longer or sooner?  
-- Special requests, parking space requirement, booking changes:  
-- is repeated guests or not:  
-- previous cancellations and successful bookings:  
-- deposit type:  
 
 #### How do the cancellations have in common?
 
@@ -264,10 +253,9 @@ Having known which kind of the bookings are more likely to get cancelled, we are
 
 ```{r guest-anatomy}
 cancel_anatomy <- hotel_mngt %>%
-  select(- arrival_date_week_number, - arrival_date_month, - arrival_date_year, - reservation_status, - 
-           reservation_status_date, hotel, market_segment, agent, arrival_date, deposit_type, 
+  select(reservation_status, hotel, market_segment, agent, arrival_date, deposit_type, 
          previous_cancellations, previous_bookings_not_canceled, required_car_parking_spaces, 
-         total_of_special_requests, reservation_status)
+         total_of_special_requests, reservation_status, is_repeated_guest)
 
 cancel_mkt_segment <- cancel_anatomy %>%
   select(market_segment, reservation_status, hotel) %>%
@@ -339,8 +327,35 @@ p2 <- cancel_anatomy %>%
 grid.arrange(p1, p2, ncol = 2)
 ```
 
-Figure \@ref(fig:deposit-plot) showed us something really interesting. If we looked at the absolute numbers of cancellation by counting the number of canceled bookings for each deposit type (left plot), we will have _no deposit_ as the highest with _non - refund_ followed by roughly a half. This came as no surprise as nowadays people were not expected to deposit for their stays, which made them more likely to cancel their bookings without spending a penny.  
-However, if we looked at the cancel rate by deposit type which we took the canceled bookings divided by all the bookings under each deposit type (right plot), we had a quite counter-intuitive discover. The _non_refund_ now had the highest rate of cancellation, leaving the other two types far behind. This implied that people actually canceled the bookings that they had paid in advance! This insight called for further investigation, ideally with a different dataset of a a different hotel to verify its validity.
+Figure \@ref(fig:deposit-plot) showed us something really interesting. If we looked at the absolute numbers of cancellation by counting the number of canceled bookings for each deposit type (left plot), we will have _no deposit_ as the highest with _non-refund_ followed by roughly a half. This came as no surprise as nowadays people were not expected to deposit for their stays, which made them more likely to cancel their bookings without spending a penny.  
+However, if we looked at the cancel rate by deposit type which we took the canceled bookings divided by all the bookings under each deposit type (right plot), we had a quite counter-intuitive discover. The _non_refund_ now had the highest rate of cancellation, leaving the other two types far behind. This implied that people actually canceled the bookings that they had paid in advance! This insight called for further investigation, ideally with a different dataset of different hotels to verify its validity.
+
+#### Other special requests
+
+Finally, we wanted to know dig a little bit further into the bizzarre finding we made earlier. What made people threw away good money by cancelling the bookings they had paid before actually arrived at the premises? Could it be because per each deposit type, the hotels could not answer their requests (lacks parking spaces, unable to respond to special requests)? We will try to look at these elements for each deposit type to find out.  
+
+We will compute the percentage of repeated guests for all bookings, average number of previous cancellations, successful bookings, car parking space requests and special requests.   
+
+```{r request}
+cancel_request <- cancel_anatomy %>%
+  select(-hotel, - agent, - arrival_date, - agent, - market_segment) %>%
+  # filter(reservation_status == "Canceled") %>%
+  group_by(deposit_type) %>%
+  summarise(bookings_count = n(),
+            percent_repeated_guest = sum(is_repeated_guest == 1)/bookings_count,
+            previous_cancellations = mean(previous_cancellations),
+            previous_successful_booking = mean(previous_bookings_not_canceled),
+            car_parking_space = mean(required_car_parking_spaces),
+            special_requests = mean(total_of_special_requests))
+
+cancel_request %>%  
+  kable(title = "Summary statistics") %>%
+  kable_styling(bootstrap_options = c("hover", "stripped")) %>%
+  row_spec(2, bold = T, background = "#ffd700")
+  
+```
+
+Table \@ref(tab:request) added more to the confusion when non-refund bookings had customers who were either quite new to the hotels (low % of repeated guests) or had made a lot of cancellations before (highest previous cancellations, lowest successful booking), rarely required parking space (lowest average requests for car parking space) and rarely posed special requests (lowest average special requests) yet still willing to pay in advance only to cancel later. To put in plain words, these customers were either too pissed off in the past (high previous cancellations), too new to the hotels or not too picky but still decided to pay first and lost all the advance payment by abadoning the bookings. This point clearly asked for further investigation to decide whether this is hotel-specific or industry-specific.  
 
 
 # Conclusion
@@ -352,4 +367,6 @@ However, if we looked at the cancel rate by deposit type which we took the cance
 # References
 
 Definition https://str.com/sites/default/files/2019-11/str-data-reporting-guidelines-english-2019.pdf
+EDA_example (https://www.kaggle.com/marcuswingen/eda-of-bookings-and-ml-to-predict-cancelations)
+
 
