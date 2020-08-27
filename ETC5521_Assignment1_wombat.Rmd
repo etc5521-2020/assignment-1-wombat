@@ -60,7 +60,6 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 7. NT (nationalities).
 8. MS (market segments). 
 
-Regarding the time stamp, when the bookings were created before the arrival, the values were retrieved on the day prior to the arrival date.
 
 ## Limitation of Data
 
@@ -143,7 +142,7 @@ vis_dat(hotels_corrected_type, warn_large_data = FALSE)
 ```
 </center>
 
-We also created some variables that we would use for the analysis. Those are: 
+We also created some variables by transforming or wrangling the original variable to analyze the data. Those variables are listed as follows:
 
 1. 
 2. `is_canceled_new`. This variable is actually the same with `is_canceled`. We only recoded the value from 0 and 1 to be "not canceled" and "canceled" in order to make it easier to interpret. 
@@ -158,7 +157,7 @@ The `lengt_of_stay` and `stay_on` would be used to analyze the staying pattern o
 
 
 ```{r}
-hotels_corrected_type <- hotels_corrected_type %>%
+hotels_new_data <- hotels_corrected_type %>%
   mutate(is_canceled_new = if_else(
            condition = is_canceled == 0,
            true = "not canceled",
@@ -168,7 +167,34 @@ hotels_corrected_type <- hotels_corrected_type %>%
                           ifelse(stays_in_weekend_nights != 0 & stays_in_week_nights == 0, "Weekend", "Weekday")),
          number_of_guest = adults + imputed_children + babies,
          kids = imputed_children + babies,
-         family_type = ifelse(kids != 0, "family", "not family"))
+         family_type = ifelse(kids != 0, "family", "not family"),
+         arrival_month_year = paste0(arrival_date_month, arrival_date_year),
+         semester = case_when(str_detect(arrival_month_year, "July2015") ~ "2015 Sem 2",
+                              str_detect(arrival_month_year, "August2015") ~ "2015 Sem 2",
+                              str_detect(arrival_month_year, "September2015") ~ "2015 Sem 2",
+                              str_detect(arrival_month_year, "October2015") ~ "2015 Sem 2",
+                              str_detect(arrival_month_year, "November2015") ~ "2015 Sem 2",
+                              str_detect(arrival_month_year, "December2015") ~ "2015 Sem 2",
+                              str_detect(arrival_month_year, "January2016") ~ "2016 Sem 1",
+                              str_detect(arrival_month_year, "February2016") ~ "2016 Sem 1",
+                              str_detect(arrival_month_year, "March2016") ~ "2016 Sem 1",
+                              str_detect(arrival_month_year, "April2016") ~ "2016 Sem 1",
+                              str_detect(arrival_month_year, "May2016") ~ "2016 Sem 1",
+                              str_detect(arrival_month_year, "June2016") ~ "2016 Sem 1",
+                              str_detect(arrival_month_year, "July2016") ~ "2016 Sem 2",
+                              str_detect(arrival_month_year, "August2016") ~ "2016 Sem 2",
+                              str_detect(arrival_month_year, "September2016") ~ "2016 Sem 2",
+                              str_detect(arrival_month_year, "October2016") ~ "2016 Sem 2",
+                              str_detect(arrival_month_year, "November2016") ~ "2016 Sem 2",
+                              str_detect(arrival_month_year, "December2016") ~ "2016 Sem 2",
+                              str_detect(arrival_month_year, "January2017") ~ "2017 Sem 1",
+                              str_detect(arrival_month_year, "February2017") ~ "2017 Sem 1",
+                              str_detect(arrival_month_year, "March2017") ~ "2017 Sem 1",
+                              str_detect(arrival_month_year, "April2017") ~ "2017 Sem 1",
+                              str_detect(arrival_month_year, "May2017") ~ "2017 Sem 1",
+                              str_detect(arrival_month_year, "June2017") ~ "2017 Sem 1",
+                              str_detect(arrival_month_year, "July2017") ~ "2017 Sem 2",
+                              str_detect(arrival_month_year, "August2017") ~ "2017 Sem 2"))
 ```
 
 
@@ -184,7 +210,7 @@ hotels_corrected_type <- hotels_corrected_type %>%
 
 According to @meier, a relevant market segment is one of the key to be successful in hotel management, especially to set the price correctly. Therefore, it is essential to define the distribution of these hotels market segment. 
 
-Figure \@ref(fig:market-segment-change) shows that the city hotel received more booking compared to the resort hotel. It also conveys that the vast majority of bookings in both hotel were made through Online Travel Agent (OTA). However, the portion of bookings through OTA was bigger in the city hotel than in the resort hotel. In contrast to the city hotel, we could see more portion of direct bookings in the resort hotel than group bookings.
+Figure \@ref(fig:market-segment) shows that the vast majority of bookings in both hotel were made through Online Travel Agent (OTA). In addition, the portion of bookings through OTA was bigger in the city hotel than in the resort hotel. In contrast with the city hotel, we could see more portion of direct bookings in the resort hotel than group bookings.
 
 A study from [Phocuswright](https://www.pegs.com/blog/why-do-travelers-prefer-booking-with-otas/) in @pegs stated that one of the major reason of why do the people book trough OTA is beacuse the website is easy to use. Meanwhile, @howe argued that OTAs are favorable because its easy booking option. According to @jedina2017exploring in @TalwarShalini2020Wdpp, the factors for booking the hotel through OTA are the accessibility, pricing, review accountability, and the customer services. 
 
@@ -192,9 +218,9 @@ A study from [Phocuswright](https://www.pegs.com/blog/why-do-travelers-prefer-bo
 <center>
 
 
-```{r market-segment-change, fig.cap = "The distribution of hotel market segment in the city and resort hotel (2015-2017)"}
+```{r market-segment, fig.cap = "The distribution of hotel market segment in the city and resort hotel (2015-2017)"}
 
-ms_change <- ggplot(hotels_corrected_type) +
+ms_change <- ggplot(hotels_new_data) +
   geom_bar(aes(x = hotel, 
                fill = market_segment), 
            position = "fill") +
@@ -208,38 +234,36 @@ ggplotly(ms_change)
 </center>
 
 
-To gain more insight from the market segment, in this case to examine how much the OTA bookings would have contributed to hotels' revenue, we need to know the distribution the ADR from each market segment. However, we would only use the data from the actual guests, which is the guests who did not cancel the booking, since only this kind of bookings that would bring the actual revenue for the hotels. 
-
-
-
-
+To look further how the OTA has became the main player of these hotels market segment, we plotted the booking against the time, in this case is semester-wise. We chose this time frame because we have the full semester-wise data each year until the first semester of 2017. Hence, the comparison would be apple to apple.  
 
 <center>
+```{r semester-ms-plot, fig.cap = "The distribution of hotel market segment in the city and resort hotel by semester" }
 
-```{r is-canceled-ms, fig.cap = "Cancellation rate by market segment"}
-
-is_canceled_ms <- ggplot(hotels_corrected_type) +
-  geom_bar(aes(x = hotel,
-               fill = is_canceled_new),
+semester_ms_plot <- ggplot(filter(hotels_new_data, semester != "2017 Sem 2")) +
+  geom_bar(aes(x = semester, 
+               fill = market_segment), 
            position = "fill") +
-  facet_wrap(~market_segment) +
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        text = element_text(size = 8)) +
+  xlab("Time") +
   ylab("Proportion") +
-  xlab("Hotel")
+  theme(text = element_text(size = 8)) +
+  facet_wrap(~hotel)
 
-ggplotly(is_canceled_ms)
+ggplotly(semester_ms_plot)
+
 
 ```
 
 </center>
 
-From Figure \@ref(fig:is-canceled-ms), we could see that despite the high number of booking from Online TA, the cancellation rate from this market segment was also high (more than 30 percent in both hotels). In addition, the cancellation rate in the city hotel was higher than in the resort hotel in the vast majority of market segments. In the group bookings, the cancellation rate even almost reached 70 percent of all bookings. Hence, we should examine the distribution of hotel guests from the actual booking only. Figure \@ref(fig:is-canceled-ms) also suggests that the hotel management should apply a more strict cancellation policy given the high number of canceled bookings. 
+Figure \@ref(fig:semester-ms-plot) shows that the OTA has taken over the domination of group bookings in the city hotel only in a half of year period. The proportion of the OTA in the first semester of 2016 has been doubled than the previous semester. Whilst in the resort hotel, the bookings trough OTA has been dominating since the beginning of the period observed. In contrast to the city hotel, in the first semester of 2016, the bookings through OTA slightly decreased and the group booking increased. We could also see that the proportion OTA bookings reached the peak in semester 2 of 2016 in both hotels. 
+
+Aside from OTA matter, Figure \@ref(fig:semester-ms-plot) shows another interesting fact that in the condition of OTA booking was dominating the market segment, the proportion of direct booking in the resort hotel was relatively stable. However, this data set do not provide any information to investigate this matter deeper. Our guess is that may be this resort has their own way to promote their direct booking, for example may be through a loyalty voucher. 
+
+To gain more insight from the market segment, especially to examine how much the OTA bookings would have contributed to hotels' revenue, we need to know the distribution the ADR from each market segment. From Figure \@ref(fig:Hanh's-Figure), we could see that despite the high number of booking from the Online TA, the cancellation rate from this market segment was also relatively high. Hence, we should examine the distribution of hotel guests from the actual bookings only, which is the guests who did not cancel the booking. It is because only this kind of booking that would bring the actual revenue for the hotels.
 
 
 ```{r actual_guest}
-actual_guest <- hotels_corrected_type %>%
+actual_guest <- hotels_new_data %>%
   filter(is_canceled == 0)
 ```
 
@@ -263,7 +287,9 @@ ggplotly(actual_guest_ms)
 </center>
 
 
-Figure \@ref(fig:actual-guest-ms) conveys that most of guests in both hotels made the bookings through OTA, eventhough the cancellation rate from this market segment was also high. The reason might be because the portion was already big and the other categories also made cancellations. Since *complementary*, *aviation*, and *corporate* categories share fewer proportion of bookings compared to the others, we would recode these categories into *other* category.
+Figure \@ref(fig:actual-guest-ms) conveys that most of actual guest in both hotels made the bookings through OTA, eventhough the cancellation rate from this market segment was also high. The reason might be because the portion of OTA booking was already big and the other categories also made cancellations. 
+
+Since *complementary*, *aviation*, and *corporate* categories share fewer proportion of bookings compared to the others, we would recode these categories into *other* category.
 
 
 ```{r recode}
@@ -283,25 +309,7 @@ actual_guest <- actual_guest %>%
 ```
 
 
-In the dataset, we do not have any information about the ADR by the room type and by the meal. In fact, these to variables would determine the booking rate. Therefore, in order to get unbiased insight, we would analyze the ADR only in the most booking meal. Figure \@ref(fig:meal-dist) suggests that the most booked meal category is the Bed and Breakfast (BB). 
-
-<center>
-
-```{r meal-dist, fig.cap= "The distribution of hotel bookings by meal"}
-
-meal_dist <- ggplot(actual_guest) +
-  geom_bar(aes(x = hotel,
-               fill = meal),
-           position = "fill") +
-  xlab("Hotel") +
-  ylab("Proportion") +
-  theme(text = element_text(size = 8))
-
-ggplotly(meal_dist)
-  
-```
-</center>
-
+In the dataset, we do not have any information about the ADR by the room type. In fact, this variable would determine the booking rate. Therefore, in order to get unbiased insight, we would analyze the ADR by the room type. 
 
 
 ```{r adr-null}
@@ -312,18 +320,19 @@ p_adr_null <- round(nrow(adr_null)/nrow(actual_guest)*100, 2)
 
 ```
 
-<br>
 
-There is no information of the currency used in the ADR variable. Thus, we assumed that the ADR is stated in Euro since these hotels are located in Portugal. In this variable, we also found 0 value (`r p_adr_null` percent of the data), but we did not find any further information about it. We assumed that it could be the free stay vouchers which are given to the guests. We would not include this observations in the analysis because it would not contribute to the hotels' revenue.  
+We could not also also find any information of the currency used in the ADR variable. Thus, we assumed that the ADR is stated in Euro since these hotels are located in Portugal. In this variable, we also found 0 value (`r p_adr_null` percent of the data), but we did not find any further information about it. We assumed that it could be the complementary room that the hotels provide for free. We would not include these observations in the analysis because it would not contribute to the hotels' revenue.  
 
-Figure \@ref(fig:adr-ms) shows that the distribution of ADR based on the market segment across room type is heterogeneous.  We could also found many outlier observations. Figure \@ref(fig:adr-ms) also suggests that in the city hotel, the bookings from OTA were found to have the highest median of ADR in the A, B, D, F, G rooms (5 out of 8 room types). Direct category had the highest median of ADR in three room types, namely C, E and K. In the resort hotel, the bookings from OTA also had the highest median of ADR in 6 out of 9 types of room (A, B, D, E, G, I). In addition, the highest ADR median in the other room types were made through direct booking. This finding indicates that it might be that hotel management has used the insight from the market segment to manage the price of the room to gain more revenue. 
+Figure \@ref(fig:adr-ms) shows that the distribution of ADR based on the market segment across room type was heterogeneous.  We could also found many outlier observations. The median of ADR shown in Figure \@ref(fig:adr-ms) also indicates a price competition between direct and OTA booking in both hotels. This finding is somehow in line with the current "war" between direct on OTA booking in the hotel industry. According @loxley and @skift to  as the booking transaction through OTA increased, so did the commission rate per booking that the hotels have to pay. The hotel then fight back to urge direct booking through the pricing [@phocuswire]. 
+
+From this finding, we could also learn that from the customer perspective, it is might be better to book the hotel through group booking or offline travel agent because they were cheaper.
 
 
 <center>
 
 ```{r adr-ms, fig.width = 10, fig.height=7, fig.cap = "The distibution of ADR by assigned room type with BB meal in the city and resort hotel"}
 
-adr_ms <- ggplot(filter(actual_guest, meal == "BB" & adr != 0)) +
+adr_ms <- ggplot(actual_guest) +
   geom_boxplot(aes(x = market_segment_new,
                y = adr, fill = market_segment_new)) +
   facet_grid(hotel ~ assigned_room_type) +
@@ -346,13 +355,9 @@ ggplotly(adr_ms) %>%
 
 
 
+From this exploration, we could tell that the online travel agent has dominated the market segment both in the city and resort hotels. In the city hotel, the domination began in first semester of 2016, whilst in the resort, it has began from the beginning of the period observed. In addition, the median of ADR based on market segment indicates an evidence of competition between direct and OTA bookings.    
 
-This finding is also in line with the result of the consumer research from [Which?](https://www.theguardian.com/money/2020/mar/04/travellers-may-lose-out-by-booking-hotels-online-says-which) in @hern which stated that the travelers are paying up more for the hotel room through online booking. From this finding, we could also learn that from the customer perspective, it is might be better to book the hotel through group booking or offline travel agent because they were cheaper.
 
-
-From this exploration, we could tell that the online travel agent has dominated the market segment both in the city and resort hotels. In addition, since the median of OTA ADR is the highest in most room types for the same type of meal, we could infer that the OTA bookings had been being a valuable resource of revenue for both hotels.  
-
-<br>
 <br>
 
 ## Where Did The Bookings Come From?
@@ -364,13 +369,13 @@ Another way to gain more insight about the market is to examine the origin of th
 
 # check if there is undefined country in the hotel bookings
 
-#dplyr::distinct(hotels_corrected_type, country)
+#dplyr::distinct(hotels_new_data, country)
 
 # Apparently, there is also a null observation in the country name. 
 # We would like to know the percentage of this null country observation.
 
-null_country <- hotels_corrected_type %>% filter(country == "NULL")
-p_null_country <- round(nrow(null_country)/ nrow(hotels_corrected_type) * 100, 3)
+null_country <- hotels_new_data %>% filter(country == "NULL")
+p_null_country <- round(nrow(null_country)/ nrow(hotels_new_data) * 100, 3)
 
 
 ```
@@ -379,7 +384,7 @@ Firstly, we would like to observe the distribution of the country of the origin 
 
 ```{r bookers-table}
 
-book_origin <- hotels_corrected_type %>% filter(country != "NULL") %>% 
+book_origin <- hotels_new_data %>% filter(country != "NULL") %>% 
   group_by(country) %>%
   count(country) %>%
   arrange(desc(n)) %>%
@@ -423,7 +428,7 @@ ggplotly(bookings_map)
 
 </center> 
 
-If we hover to the map, we found that the bookings came from most of the country across the world. In order to get a detail view, we provided the table of the bookings country of origin. The table suggests that the bookings came from `r nrow(book_origin_table)` different countries.
+If we hover to the map, we found that the bookings came from most of the country across the world. In order to get a detail view, we provided the table of the 'bookings' country of origin. The table suggests that the bookings came from `r nrow(book_origin_table)` different countries.
 
 <br>
 
@@ -435,19 +440,20 @@ DT::datatable(book_origin_table, colnames = c("Country Code", "Country Name", "N
 <br>
 
 
-The country fact conveys that by country-wise, most bookings were from Portugal. However the number of bookings made by international traveler are also a lot, especially from the European countries. In the further analysis, we would categorize the bookings into two categories: "local" and "international".  
+By country-wise, most bookings were from Portugal. However the number of bookings made by international travelers are also a lot, especially from the European countries. In the further analysis, we would categorize the bookings into two categories, namely "local" and "international".  
 
 ```{r mutate-origin}
 
 # Create new variable which categorize the origin of travelers.
 # We omitted the country observations that are equal to NULL
 
-origin_cat <- hotels_corrected_type %>%
+origin_cat <- hotels_new_data %>%
   filter(country != "NULL") %>%
   mutate(origin = if_else(
            condition = country == "PRT",
            true = "local",
            false = "international"))
+
 ```
 
 
@@ -462,7 +468,7 @@ origin_plot <- ggplot(origin_cat) +
            position = "fill") +
   xlab("Hotel Type") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8))
+  theme(text = element_text(size = 8)) 
 
 ggplotly(origin_plot)
 
@@ -604,7 +610,7 @@ Figure \@ref(fig:when-stay-plot) shows that both in the city and resort hotel, t
 ```{r length-of-stay-hist, fig.cap= "Length of stay of international guest"}
 
 length_of_stay_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
-  geom_histogram(aes(x = length_of_stay, fill = hotel), 
+  geom_histogram(aes(x = length_of_stay, y = ..density.., fill = hotel), 
                  binwidth = 2, 
                  colour = "white",
                  show.legend = FALSE) +
@@ -661,16 +667,17 @@ ggplotly(family_plot)
 <center>
 ```{r, message = FALSE}
 
-number_of_guest_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international")) +
-  geom_histogram(aes(x = number_of_guest, fill = hotel),
+number_of_guest_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & hotel == "Resort Hotel")) +
+  geom_histogram(aes(x = number_of_guest, #fill = hotel,
+                     y = stat(count)/sum(stat(count))),
                  colour = "white",
                  show.legend = FALSE) +
   scale_x_continuous(breaks = seq(0, 100, by=2)) +
-  facet_wrap(~hotel) +
+  #facet_wrap(~hotel) +
   xlab("Number of Guest") +
-  ylab("Count") +
-  theme(text = element_text(size = 8))
-
+  ylab("Percentage") +
+  theme(text = element_text(size = 8)) +
+  scale_y_continuous(labels = scales::percent)
 
 ggplotly(number_of_guest_hist)
 
@@ -679,7 +686,12 @@ ggplotly(number_of_guest_hist)
 
 
 
-From this exploration, we could argue that there is a high chance that the international travelers who booked the hotel room were bleisure travelers. The reason are: first, they stayed in the city hotel, which is more expensive than the resort hotel; second, most of them were staying in the relatively short period of time both in the weekdays and weekend; and third,  most of them did not travel with kids. However, another investigation, which is not covered in this analysis, is needed to confirm this analysis result.  
+
+From this exploration, we could argue that there is a high chance that the international travelers who booked the hotel room were bleisure travelers. The reason are: first, most of them stayed in the city hotel; second, most of them were staying in the relatively short period of time both in the weekdays and weekend; and third,  most of them did not travel with kids. However, another investigation, which is not covered in this analysis, is needed to confirm this matter.  
+
+
+
+
 
 
 
