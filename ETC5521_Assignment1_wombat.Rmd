@@ -341,7 +341,7 @@ adr_ms <- ggplot(actual_guest) +
         legend.title = element_blank(),
         text = element_text(size = 8)) +
   ylab("ADR (Euro)")+
-  xlab("Market Segment")
+  xlab("Market Segment") 
 
 
 #centering the legend position
@@ -363,7 +363,7 @@ From this exploration, we could tell that the online travel agent has dominated 
 ## Where Did The Bookings Come From?
 <br>
 
-Another way to gain more insight about the market is to examine the origin of the travelers that book the hotel room. It is important to understand their behavior and preference. Hence, the businesses are able to develop strategies to attract them. 
+Another way to gain more insight about the market is to examine the origin of the travelers that book the hotel room. It is important to understand their behavior and preference. Hence, the hoteliers are able to develop strategies to attract them. 
 
 ```{r country-check}
 
@@ -468,7 +468,8 @@ origin_plot <- ggplot(origin_cat) +
            position = "fill") +
   xlab("Hotel Type") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8)) 
+  theme(text = element_text(size = 8)) +
+  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))
 
 ggplotly(origin_plot)
 
@@ -478,7 +479,7 @@ ggplotly(origin_plot)
 
 <br>
 
-Figure \@ref(fig:origin-plot) portrays that the international booking was dominating in both hotels. Somehow, the portion pattern is quite similar to the pattern of the bookings that made by OTA in the Figure \@ref(fig:market-segment-change). Therefore it is interesting to examine the market segment of the international bookings. 
+Figure \@ref(fig:origin-plot) portrays that the international booking was dominating in both hotels. Somehow, the portion pattern is quite similar to the pattern of the bookings that made by OTA in the Figure \@ref(fig:market-segment). Therefore it is interesting to examine the market segment of the international bookings. 
 
 <center>
 
@@ -501,49 +502,36 @@ ggplotly(origin_ms)
 
 <br>
 
-According to Figure \@ref(fig:origin-ms), vast majority of international bookings were made through OTA in both hotels. This fact, once again, proved the OTA dominance in the hospitality industry. One interesting fact is that in the resort hotel, many international travelers also booked through offline TA/TO. 
+According to Figure \@ref(fig:origin-ms), vast majority of international bookings were made through OTA in both hotels. This fact, once again, proved the OTA dominance in the hospitality industry. One interesting fact is that in the resort, many international travelers also booked through offline TA/TO. 
 
-We were curious whether the international travelers pay more than the local travelers. It is actually interesting question since most of bookings came from abroad. To answer this question we would only, again, using the data from actual bookings. In addition, to avoid bias in the interpretation, we would only use the observations from the same room type and meal category. According to Figure \@ref(fig:meal-room-dist), we would use the observations with "BB" meal booking and from room type "A" due to the huge portion of these categories in both hotels.
+We were curious whether the international travelers pay more than the local travelers. It is actually interesting question since most of bookings came from abroad. To answer this question we would only, again, using the data from actual bookings. In addition, to avoid bias in the interpretation, we would only use the observations from the same room type. According to Figure \@ref(fig:room-dist), we would use the observations from room type "A" due to the high shares of these categories in both hotels.
 
 <center>
 
-```{r meal-room-dist, fig.cap = "Meal and moom type distribution of hotels' guests", fig.width=10}
+```{r room-dist, fig.cap = "Meal and moom type distribution of hotels' guests", fig.width=10, out.width= "50%"}
 
-meal_dist_origin <- ggplot(filter(origin_cat, is_canceled == 0)) +
-  geom_bar(aes(x = hotel,
-               fill = meal),
-           position = "fill") +
-  xlab("Hotel") +
-  ylab("Proportion") +
-  theme(text = element_text(size = 8)) +
-  ggtitle("Meal distribution")
-
-
-room_dist_origin <- ggplot(filter(origin_cat, is_canceled == 0)) +
+room_dist_origin <- ggplot(filter(origin_cat,  is_canceled == 0)) +
   geom_bar(aes(x = hotel,
                fill = assigned_room_type),
            position = "fill") +
   xlab("") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8)) +
-  ggtitle("Room type distribution")
+  theme(text = element_text(size = 8)) 
 
 
-
-grid.arrange(meal_dist_origin, room_dist_origin, ncol = 2)
+ggplotly(room_dist_origin)
 
 ```
 
 </center>
 
-<br>
-
+Another fact presented in Figure \@ref(fig:room-dist) is that the room type booked were more vary in the resort hotel, whilst in the city hotel, the room choice polarized to room type A and D. This finding could be a fruitful insight that the city hotel could improve their service to these best seller rooms. 
 
 <center>
 
 ```{r adr-origin-boxplot, fig.cap="Distribution of ADR by guest origin in the city and resort hotel"}
 
-adr_origin <- filter(origin_cat, is_canceled == 0 & meal == "BB" & assigned_room_type == "A")
+adr_origin <- filter(origin_cat, is_canceled == 0 & assigned_room_type == "A")
 
 adr_origin_boxplot <- ggplot(adr_origin) +
   geom_boxplot(aes(x = origin,
@@ -551,44 +539,20 @@ adr_origin_boxplot <- ggplot(adr_origin) +
   xlab("Guests Origin") +
   ylab("ADR (Euro)") +
   facet_wrap(~ hotel) +
-  theme(text = element_text(size = 8))
+  theme(text = element_text(size = 8)) +
+  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))
 
 ggplotly(adr_origin_boxplot)
 ```
 </center>
 
 
-In Figure \@ref(fig:origin-plot), we found the fact that most bookings in both hotels are from international travelers and Figure \@ref(fig:adr-origin-boxplot) shows that they paid relatively more money than the locals in both types of hotel. However, did they actually have a preference regarding the type of the hotel they want to stay at?
+In Figure \@ref(fig:origin-plot), we found the fact that most bookings in both hotels are from international travelers and the ADR median presented in Figure \@ref(fig:adr-origin-boxplot) shows that they paid more money than the locals in both types of hotel. Hence, we could argue that these travelers has became the valuable customers to the hotels. 
+
+Since the foreign travelers has became the valuable guest to the hotel, it is better to maintain them as future long-term customer through personalization. According to @criton personalisation is the key to winning the heart of the customer. Therefore, the hotels should have a guest profile which enable them to make guest personalisation. @siteminder mentioned that the guest profile including but are not limited to preferred length of stay and activities engaged in. Thus, using the dataset, we would try to get the information of the guest profile, in this case, the international guest.   
 
 
-
-<center>
-
-```{r origin-cat-hotel, fig.cap = "The number of bookings by hotel type"}
-
-origin_cat_hotel <- ggplot(filter(origin_cat, origin == "international" & is_canceled == 0)) +
-  geom_bar(aes(x = hotel, 
-               fill = hotel), 
-           position = "dodge") +
-  xlab("Hotel Type") +
-  ylab("Number of Bookings") +
-  theme(text = element_text(size = 8))
-
-ggplotly(origin_cat_hotel)
-
-```
-
-
-</center>
-
-Figure \@ref(fig:origin-cat-hotel) conveys that more international travelers chose to stay at the city hotel. It is definitely not because of the price since Figure \@ref(fig:adr-origin-boxplot) shows that the ADR of city hotel was higher than resort hotel. 
-
-
-
-### Business or Leisure or Bleisure? 
-
-We wondered whether these international travelers were business travelers or not? The motivation to answer this question is pretty straightforward because according to @siteminder, business travelers could be a valuable long-term costumers for the hotel. In addition, nowadays, some travelers also like to extend their business trip for leisure (bleisure) and this kind of travelers are the prominent target market for hoteliers [@siteminder]. Hence, we would try to figure out the answer by: 1) looking at the distribution of the length and the time of stay and; 2) whether they were traveling with family (kids) or not. 
-
+### Weekend or Weekday? Why Not Both! 
 
 ```{r same-day-checkout}
 
@@ -599,38 +563,64 @@ p_same_day_checkout_intl <- round(nrow(same_day_checkout_intl)/nrow(same_day_che
   
 ```
 
+
 During the exploration, we found an interesting case in which the guests did not spend any night in the hotel neither they canceled the bookings and no show. It means that the guest checked out in the same day they checked in. There are `r nrow(same_day_checkout)` actual bookings where the guests did a same day check out and we found that `r p_same_day_checkout_intl` percent are international bookings. 
 
-We observed further by checking the distribution of international guest who were really spend the nights at the hotels. We found in Figure \@ref(fig:length-of-stay-hist), that most guest in the city hotel spent 2 days in the city hotel. In addition, the length of stay of the guests in the city hotel was relatively shorter than the guest in the resort hotel. In the resort, the guests length of stay was also more heterogeneous. Hence, it might be true that these guests are business travelers. However, we should examine of when did the guests stay at most. We assumed that if they were travel for business, then they would travel in weekdays. 
+We observed further by checking the distribution of international guest who were really spend the nights at the hotels. We found in Figure \@ref(fig:length-of-stay-hist-city), that most guest in the city hotel spent 3 days in the city hotel. In the resort hotel, most guests spent longer, which is 7 days (Figure \@ref(fig:length-of-stay-hist-resort)). In addition, generally, the length of stay of the guests in the city hotel was relatively shorter than the guest in the resort hotel. In the resort, the guests length of stay was also more vary. These fact are not surprising because typically resort guest intentionally want to spend the days in the resort and enjoy their service. Meanwhile, the city hotel guests might be a regular travelers who wanted to explore Lisbon or did a Europe trip. 
 
-Figure \@ref(fig:when-stay-plot) shows that both in the city and resort hotel, the proportion of weekend stay bookings were the smallest. In the city hotel, most of international guests stayed in weekend and weekdays. It is also found in the resort hotel, but the portion was bigger. 
 
 <center>
 
-```{r length-of-stay-hist, fig.cap= "Length of stay of international guest"}
+```{r length-of-stay-hist-city, fig.cap= "Length of stay of international guest in the city hotel", out.width= "50%"}
 
-length_of_stay_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
-  geom_histogram(aes(x = length_of_stay, y = ..density.., fill = hotel), 
-                 binwidth = 2, 
+city_long_stay <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0 & hotel == "City Hotel")) +
+  geom_histogram(aes(x = length_of_stay, 
+                     y = stat(count)/sum(stat(count))),
+                 binwidth = 1, 
                  colour = "white",
+                 fill = "#F1948A",
                  show.legend = FALSE) +
-  scale_x_continuous(breaks = seq(0, 70, by=5)) +
-  facet_wrap(~hotel) +
+  #scale_x_continuous(breaks = seq(0, 60, by=5)) +
   xlab("Length of Stay") +
-  ylab("Number of Bookings") +
-  theme(text = element_text(size = 8))
+  ylab("Percent of Bookings") +
+  theme(text = element_text(size = 8)) +
+  scale_y_continuous(labels = scales::percent)
 
-ggplotly(length_of_stay_hist)
+ggplotly(city_long_stay)
+```
 
+
+```{r length-of-stay-hist-resort, fig.cap= "Length of stay of international guest in the resort hotel", out.width= "50%"}
+
+resort_long_stay <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0 & hotel == "Resort Hotel")) +
+  geom_histogram(aes(x = length_of_stay, 
+                     y = stat(count)/sum(stat(count))),
+                 binwidth = 1, 
+                 colour = "white",
+                 fill = "#3ED9DE",
+                 show.legend = FALSE) +
+  #scale_x_continuous(breaks = seq(0, 60, by=5)) +
+  xlab("Length of Stay") +
+  ylab("Percent of Bookings") +
+  theme(text = element_text(size = 8)) +
+  scale_y_continuous(labels = scales::percent)
+
+ggplotly(resort_long_stay)
+  
 ```
 
 </center>
 
-<br>
+
+
+Further, regarding the activity that the guest may engaged in, we would like to figure it out by looking at when is the time that the guest stayed at most and observing the type of guest. 
+
+Figure \@ref(fig:when-stay-plot) shows that both in the city and resort hotel, the proportion of weekend stay bookings were the smallest. In the city hotel, most of international guests stayed in weekend and weekdays. It is also found in the resort hotel, but the portion was bigger, may be because most of guest stayed for 7 days. 
+
 
 <center>
 
-```{r when-stay-plot, fig.cap= "The distribution of time the guest book"}
+```{r when-stay-plot, fig.cap= "The distribution of time the guest stayed at the hotels", out.width="50%"}
 
 when_stay_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
   geom_bar(aes(x = hotel,
@@ -646,15 +636,23 @@ ggplotly(when_stay_plot)
 ```
 </center>
 
-Now, we want to look at whether these guest were traveling with kids, which we classified as family, or not. 
+<br>
+
+### Family Doesn't Matter, Couple Does.
+
+Now, we want to look at the type of international guest who stayed in both hotels. Here, we classified them by "family", which is the guest that travel with kids, and "not a family". Figure \@ref(fig:family-plot) portrays that the vast majority of guest in both city and resort hotel were not traveling with kids. The proportion in both hotels even exactly the same. 
 
 <center>
-```{r}
+```{r family-plot, fig.cap = "Type of International Guest in The City and Resort Hotel"}
 
 family_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
   geom_bar(aes(x = hotel,
                fill = family_type),
-           position = "fill")
+           position = "fill") +
+  xlab("Hotel Type") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8))
+  
 
 ggplotly(family_plot)
 
@@ -662,36 +660,53 @@ ggplotly(family_plot)
 </center>
 
 
-
+We then look further to the actual number of the guests and found that most guest in the city and resort hotel came in couple. However, the percentage of couple guest in resort is higher in the resort than in the city hotel. 
 
 <center>
-```{r, message = FALSE}
+```{r, message = FALSE, out.width = "50%", fig.cap = "The distribution of the number of international guest in the city hotel"}
 
-number_of_guest_hist <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & hotel == "Resort Hotel")) +
-  geom_histogram(aes(x = number_of_guest, #fill = hotel,
+number_of_guest_hist_city <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0 & hotel == "City Hotel")) +
+  geom_histogram(aes(x = number_of_guest, 
                      y = stat(count)/sum(stat(count))),
+                 binwidth = 1, 
                  colour = "white",
+                 fill = "#F1948A",
                  show.legend = FALSE) +
-  scale_x_continuous(breaks = seq(0, 100, by=2)) +
-  #facet_wrap(~hotel) +
+  #scale_x_continuous(breaks = seq(0, 60, by=5)) +
   xlab("Number of Guest") +
-  ylab("Percentage") +
+  ylab("Percent of Bookings") +
   theme(text = element_text(size = 8)) +
   scale_y_continuous(labels = scales::percent)
 
-ggplotly(number_of_guest_hist)
+ggplotly(number_of_guest_hist_city)
+
+```
+</center>
+
+<center>
+```{r, message = FALSE, out.width = "50%", fig.cap = "The distribution of the number of international guest in the resort hotel"}
+
+number_of_guest_hist_resort <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0 & hotel == "Resort Hotel")) +
+  geom_histogram(aes(x = number_of_guest, 
+                     y = stat(count)/sum(stat(count))),
+                 binwidth = 1, 
+                 colour = "white",
+                 fill = "#3ED9DE",
+                 show.legend = FALSE) +
+  xlab("Number of Guest") +
+  ylab("Percent of Bookings") +
+  theme(text = element_text(size = 8)) +
+  scale_y_continuous(labels = scales::percent)
+
+ggplotly(number_of_guest_hist_resort)
+
+
 
 ```
 </center>
 
 
-
-
-From this exploration, we could argue that there is a high chance that the international travelers who booked the hotel room were bleisure travelers. The reason are: first, most of them stayed in the city hotel; second, most of them were staying in the relatively short period of time both in the weekdays and weekend; and third,  most of them did not travel with kids. However, another investigation, which is not covered in this analysis, is needed to confirm this matter.  
-
-
-
-
+From this exploration, we got an insight that most of booking is the two hotels are international bookings. Most of them booked the room through OTA and pay more high price then the locals in both hotels. When we looked deeper, in general, they spent a lot more time in the resort hotel, compared to the city hotel. To make a personalisation to optimize guest experience, both hotels can engage more activity for couple both in weekdays and weekend.   
 
 
 
