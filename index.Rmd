@@ -34,15 +34,20 @@ library(viridisLite)
 library(naniar)
 ```
 
+<br>
+
+
 # Introduction and motivation
 
 Obtaining data from hotel industry has always been a real challenge. While we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
 
 The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes [@AntonioNuno2019Hbdd] was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
 
-In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scence. What can we learn about the way hotels manage their customers'info, how they priced our bookings or who are more likely to cancel their bookings. 
+In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scence. What can we learn about the way hotels manage their customers' info, how they priced our bookings or who are more likely to cancel their bookings. 
 
-We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis. 
+We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis
+
+<br>
 
 
 # Data description
@@ -104,6 +109,9 @@ Variables note:
 
 You may notice that some variables contained the "NULL" values (eg: agent or company variable). This "NULL" value did not mean the value was missing, rather such value did not exist to begin with; for example a booking may not have the ID of an agent or a company associated with it as such booking was made by an individual traveller.  
 
+<br>
+
+
 ## Limitation
 
 * This dataset contained data for two specific hotels in Portugal. Such limitation in study objects introduced challenges when we attempted to explain the trends observed as reasons could be hotel- specific and we could not use industry knowledge to cover.  
@@ -111,9 +119,13 @@ You may notice that some variables contained the "NULL" values (eg: agent or com
 * Eventhough we were provided with the collection method, we were not be able to verify the validity and correctness of the data. We noticed during our analysis that some of the entries were not sensible and could very likely due to the input errors. However we were unable to verify such concern.  
 * Since the observation began in July 2015 and ended in August 2017, we only have a fully cover data by year in 2016. Moreover, the coverage of the dataset in 2015 and 2017 are only six months and eight months, respectively. Hence, we would not analyze the data in year-wise manner because it might be not apple to apple to be compared. 
 
+<br>
+
 ## Time Frame of Collection
 
 The time frame covered in this data set is from 1st July of 2015 to 31st August of 2017, daily.
+
+<br>
 
 ## Collection methods
 
@@ -128,11 +140,16 @@ The time frame covered in this data set is from 1st July of 2015 to 31st August 
 7. NT (nationalities).
 8. MS (market segments). 
 
-A diagram below made by @AntonioNuno2019Hbdd presented the structure of the PMS databases:  
+A diagram below made by @AntonioNuno2019Hbdd presented the structure of the PMS databases: 
+
+<center>
 
 ```{r pms-diagram, fig.cap = "PMS database diagrams"}
 knitr::include_graphics(here::here("PMS_diagram.jpg"))
 ```
+</center>
+
+<br>
 
 ## Data Cleaning
 
@@ -268,7 +285,7 @@ hotels_new_data <- hotels_corrected_type %>%
 
 # Analysis and findings
 
-We started with 31 variables to look at, and really without any distinct direction, so we started off by looking at some of the most prominent features of hotels. 
+We started with 31 variables to look at, and really without any distinct direction, so we started off by looking at some of the most prominent features of hotels. We mainly incorporated the function from `tidyverse` [@tidyverse], `ggplot2` [@R-ggplot2], and `plotly` [@R-plotly]. We also used `lubridate` [@R-lubridate], `kableExtra` [@R-kableExtra], `gridExtra` [@R-gridExtra], `DT` [@R-DT], `maps` [@R-maps], `viridis` [@R-viridis], and `viridisLite` [@R-viridisLite]
 
 ```{r var-choose}
 hotel_mngt <- hotels %>%
@@ -281,6 +298,8 @@ hotel_mngt <- hotels %>%
   mutate(hotel = as.factor(hotel),
          year = as.numeric(arrival_date-arrival_date[1]) %/% 365+1)
 ```
+
+<br>
 
 ## Seasonality: 
 
@@ -304,6 +323,8 @@ season <- hotel_mngt %>%
          total_guests = adults + children + babies)
 ```
 
+
+<center>
 ```{r guest-by-month, fig.cap = "Number of guests by month"}
 # Guests count by month
 season %>%
@@ -325,12 +346,16 @@ season %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_color_manual(values = c("#000080", "#FF0000"))
 ```
+</center>
+
 
 The months are presented in the order of occurence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) while in year 2, the highest was observed in the summer time (August and October). 
 
 There were some anormalities, however, spotted, of which the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 while Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
 
 Next we look at the **Average Daily Rate** or ADR in short. 
+
+<center>
 
 ```{r ADR-by-month, fig.cap = "ADR by month"}
 # ADR by months
@@ -355,11 +380,13 @@ adr <- season %>%
 
 ggplotly(adr)
 ```
+</center>
 
 Unlike figure \@ref(fig:guest-by-month), figure \@ref(fig:ADR-by-month) showed a striking difference between the two hotels. Resort had the highest rates in the summer time, which make sense as Algrave is a beach area. Both hotels recorded the lowest rates in winter, however City hotel observed less fluctuation than resort. 
 
 We noticed that in the dataset, some of the bookings recorded a very low ADR (less than 10 euros), some may even down to 1 Euro for non - complimentary rooms in both hotels. This may seem a little strange and could created an impact on the ADR we plotted above in figure \@ref(fig:ADR-by-month). However, we chose not to exclude those adr as we did not know the pricing policy of the hotels in question. 
 
+<br>
 
 ## Exploring the Hotels' Market Segment
 
@@ -382,7 +409,9 @@ ms_change <- ggplot(hotels_new_data) +
            position = "fill") +
   xlab("Hotel Type") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8))
+  theme(text = element_text(size = 8)) +
+  theme_classic()
+  
 
 ggplotly(ms_change)
 
@@ -402,7 +431,9 @@ semester_ms_plot <- ggplot(filter(hotels_new_data, semester != "2017 Sem 2")) +
   xlab("Time") +
   ylab("Proportion") +
   theme(text = element_text(size = 8)) +
-  facet_wrap(~hotel)
+  facet_wrap(~hotel) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ggplotly(semester_ms_plot)
 
@@ -435,7 +466,8 @@ actual_guest_ms <- ggplot(actual_guest) +
   theme(legend.title = element_blank(),
         text = element_text(size = 8)) +
   ylab("Proportion") +
-  xlab("Hotel")
+  xlab("Hotel") +
+  theme_classic()
 
 ggplotly(actual_guest_ms)
 ```
@@ -445,15 +477,15 @@ ggplotly(actual_guest_ms)
 
 Figure \@ref(fig:actual-guest-ms) conveys that most of actual guest in both hotels made the bookings through OTA, eventhough the cancellation rate from this market segment was also high. The reason might be because the portion of OTA booking was already big and the other categories also made cancellations. 
 
-Since *complementary*, *aviation*, and *corporate* categories share fewer proportion of bookings compared to the others, we would recode these categories into *other* category.
+Since *aviation*, and *corporate* categories share fewer proportion of bookings compared to the others, we would recode these categories into *other* category. In addition, we would exclude the bookings that belong to *complementary* type since in the price analysis, these categories actually would not give any revenue to the hotels. 
 
 
 ```{r recode}
 actual_guest <- actual_guest %>%
+  filter(market_segment != "Complementary") %>%
   mutate(market_segment_new = case_when(
     str_detect(market_segment, "Aviation") ~ "Other",
     str_detect(market_segment, "Corporate") ~ "Other",
-    str_detect(market_segment, "Complementary") ~ "Other",
     str_detect(market_segment, "Direct") ~ "Direct",
     str_detect(market_segment, "Groups") ~ "Groups",
     str_detect(market_segment, "Offline TA/TO") ~ "Offline TA/TO",
@@ -477,7 +509,7 @@ p_adr_null <- round(nrow(adr_null)/nrow(actual_guest)*100, 2)
 ```
 
 
-We could not also also find any information of the currency used in the ADR variable. Thus, we assumed that the ADR is stated in Euro since these hotels are located in Portugal. In this variable, we also found 0 value (`r p_adr_null` percent of the data), but we did not find any further information about it. We assumed that it could be the complementary room that the hotels provide for free. We would not include these observations in the analysis because it would not contribute to the hotels' revenue.  
+We could not also also find any information of the currency used in the ADR variable. Thus, we assumed that the ADR is stated in Euro since these hotels are located in Portugal.  
 
 Figure \@ref(fig:adr-ms) shows that the distribution of ADR based on the market segment across room type was heterogeneous.  We could also found many outlier observations. The median of ADR shown in Figure \@ref(fig:adr-ms) also indicates a price competition between direct and OTA booking in both hotels. This finding is somehow in line with the current "war" between direct on OTA booking in the hotel industry. According @loxley and @skift to  as the booking transaction through OTA increased, so did the commission rate per booking that the hotels have to pay. The hotel then fight back to urge direct booking through the pricing [@phocuswire]. 
 
@@ -488,7 +520,7 @@ From this finding, we could also learn that from the customer perspective, it is
 
 ```{r adr-ms, fig.width = 10, fig.height=7, fig.cap = "The distibution of ADR by assigned room type with BB meal in the city and resort hotel"}
 
-adr_ms <- ggplot(actual_guest) +
+adr_ms <- ggplot(filter(actual_guest, adr >= 0)) +
   geom_boxplot(aes(x = market_segment_new,
                y = adr, fill = market_segment_new)) +
   facet_grid(hotel ~ assigned_room_type) +
@@ -514,9 +546,9 @@ ggplotly(adr_ms) %>%
 From this exploration, we could tell that the online travel agent has dominated the market segment both in the city and resort hotels. In the city hotel, the domination began in first semester of 2016, whilst in the resort, it has began from the beginning of the period observed. In addition, the median of ADR based on market segment indicates an evidence of competition between direct and OTA bookings.    
 
 
+<br>
 
 ## Where Did The Bookings Come From?
-<br>
 
 Another way to gain more insight about the market is to examine the origin of the travelers that book the hotel room. It is important to understand their behavior and preference. Hence, the hoteliers are able to develop strategies to attract them. 
 
@@ -624,7 +656,8 @@ origin_plot <- ggplot(origin_cat) +
   xlab("Hotel Type") +
   ylab("Proportion") +
   theme(text = element_text(size = 8)) +
-  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))
+  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))+
+  theme_classic()
 
 ggplotly(origin_plot)
 
@@ -632,7 +665,6 @@ ggplotly(origin_plot)
 
 </center>
 
-<br>
 
 Figure \@ref(fig:origin-plot) portrays that the international booking was dominating in both hotels. Somehow, the portion pattern is quite similar to the pattern of the bookings that made by OTA in the Figure \@ref(fig:market-segment). Therefore it is interesting to examine the market segment of the international bookings. 
 
@@ -646,7 +678,8 @@ origin_ms <- ggplot(filter(origin_cat, origin == "international")) +
            position = "fill") +
   xlab("Hotel") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8))
+  theme(text = element_text(size = 8))+
+  theme_classic()
 
 ggplotly(origin_ms)
 
@@ -663,7 +696,7 @@ We were curious whether the international travelers pay more than the local trav
 
 <center>
 
-```{r room-dist, fig.cap = "Meal and moom type distribution of hotels' guests", fig.width=10, out.width= "50%"}
+```{r room-dist, fig.cap = "Room type distribution of hotels' guests"}
 
 room_dist_origin <- ggplot(filter(origin_cat,  is_canceled == 0)) +
   geom_bar(aes(x = hotel,
@@ -671,10 +704,13 @@ room_dist_origin <- ggplot(filter(origin_cat,  is_canceled == 0)) +
            position = "fill") +
   xlab("") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8)) 
+  theme(text = element_text(size = 4)) +
+  theme_classic() 
 
 
-ggplotly(room_dist_origin)
+ggplotly(room_dist_origin) %>%
+  layout(legend = list(orientation = "h",
+                       x = 0.1, y = -0.1))
 
 ```
 
@@ -695,7 +731,8 @@ adr_origin_boxplot <- ggplot(adr_origin) +
   ylab("ADR (Euro)") +
   facet_wrap(~ hotel) +
   theme(text = element_text(size = 8)) +
-  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))
+  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))+
+  theme_classic()
 
 ggplotly(adr_origin_boxplot)
 ```
@@ -739,7 +776,8 @@ city_long_stay <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "intern
   xlab("Length of Stay") +
   ylab("Percent of Bookings") +
   theme(text = element_text(size = 8)) +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent)+
+  theme_classic()
 
 ggplotly(city_long_stay)
 ```
@@ -758,7 +796,8 @@ resort_long_stay <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "inte
   xlab("Length of Stay") +
   ylab("Percent of Bookings") +
   theme(text = element_text(size = 8)) +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent) +
+  theme_classic()
 
 ggplotly(resort_long_stay)
   
@@ -783,7 +822,8 @@ when_stay_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "intern
            position = "fill") +
   xlab("Hotel Type") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8))
+  theme(text = element_text(size = 8)) +
+  theme_classic()
   
 
 ggplotly(when_stay_plot)
@@ -793,7 +833,7 @@ ggplotly(when_stay_plot)
 
 <br>
 
-** Family Doesn't Matter, Couple Does. **
+**Family Doesn't Matter, Couple Does.**
 
 Now, we want to look at the type of international guest who stayed in both hotels. Here, we classified them by "family", which is the guest that travel with kids, and "not a family". Figure \@ref(fig:family-plot) portrays that the vast majority of guest in both city and resort hotel were not traveling with kids. The proportion in both hotels even exactly the same. 
 
@@ -806,7 +846,8 @@ family_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "internati
            position = "fill") +
   xlab("Hotel Type") +
   ylab("Proportion") +
-  theme(text = element_text(size = 8))
+  theme(text = element_text(size = 8)) +
+  theme_classic()
   
 
 ggplotly(family_plot)
@@ -831,7 +872,8 @@ number_of_guest_hist_city <- ggplot(filter(origin_cat, is_canceled == 0 & origin
   xlab("Number of Guest") +
   ylab("Percent of Bookings") +
   theme(text = element_text(size = 8)) +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent) +
+  theme_classic()
 
 ggplotly(number_of_guest_hist_city)
 
@@ -851,7 +893,8 @@ number_of_guest_hist_resort <- ggplot(filter(origin_cat, is_canceled == 0 & orig
   xlab("Number of Guest") +
   ylab("Percent of Bookings") +
   theme(text = element_text(size = 8)) +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent) +
+  theme_classic()
 
 ggplotly(number_of_guest_hist_resort)
 
@@ -863,10 +906,12 @@ ggplotly(number_of_guest_hist_resort)
 
 From this exploration, we got an insight that most of booking is the two hotels are international bookings. Most of them booked the room through OTA and pay more high price then the locals in both hotels. When we looked deeper, in general, they spent a lot more time in the resort hotel, compared to the city hotel. To make a personalisation to optimize guest experience, both hotels can engage more activity for couple both in weekdays and weekend.   
 
+<br>
 
 ## Reservation status
 Another thing we can look at for the sake of comparison is the reservation status of these two hotels at figure \@ref(fig:cancel) below:
 
+<center>
 ```{r cancel, fig.cap = "Reservation status by hotel type"}
 hotel_status <- hotel_mngt %>%
   select(hotel, reservation_status, arrival_date_year) %>%
@@ -882,6 +927,7 @@ hotel_status %>%
   ylab("number of bookings") +
   labs(title = "Reservation status by hotel type")
 ```
+</center>
 
 Cancellation seems to be a problem in city hotel. Visually, the number of cancelation in city hotel was way higher than resort. However, since the total number of bookings in the two hotels were very different to begin with, we might want to check the proportion rather than the absolute number.   
 
@@ -912,6 +958,8 @@ cancel_only <- hotel_mngt %>%
   select(-arrival_date_week_number)
 ```
 
+<center>
+
 ```{r system-days, fig.cap = "System days of cancellation bookings"}
 # visualise the days in system and cancellation day
 cancel_only %>%
@@ -924,6 +972,7 @@ cancel_only %>%
   labs(title = "System days of cancelled bookings")
 
 ```
+</center>
 
 Both hotels seems to proceed customers' bookings with great speed with the median waiting days at around 0 days. However, city hotel had a lot of cancelled bookings that sat through a significantly high number of days in the system before they were confirmed to the customers. On other note, city hotel had a high range of lead time and days in the system, signalling that bookings which were made too early prior arrival time may have higher chance of being cancelled.
 
@@ -939,6 +988,7 @@ status_compare <- hotel_mngt %>%
   select(-arrival_date_week_number)
 ```
 
+<center>
 ```{r checkout-plot, fig.cap = "System days of Check-out and Canceled"}
 status_compare %>%
   select(hotel, reservation_status,lead_time, days_in_waiting_list) %>%
@@ -950,6 +1000,7 @@ status_compare %>%
   theme_classic() +
   scale_fill_brewer(palette="Dark2")
 ```
+</center>
 
 At the first glance at figure \@ref(fig:checkout-plot), both types of bookings still maintained a median days of waiting as 0 days, cancelled bookings had a lower days in system compared to check-out, which was no surprises as cancellations usually are done days before the arrival date. However, lead time for cancelled bookings were much higher than of Check-out, except for the two outliners of check-out which exceed 650 days. This confirmed our assumption of lead time having an impact on the cancellation chance. The earlier the booking, the higher the chance of cancellation. 
 
@@ -974,6 +1025,7 @@ cancel_mkt_segment <- cancel_anatomy %>%
   arrange(desc(percent_cancel))
 ```
 
+<center>
 ```{r guest-anatomy-plot, fig.cap = "Who are more likely to cancel?"}
 cancel_mkt_segment %>%
   filter(!market_segment == "Undefined") %>%
@@ -987,6 +1039,7 @@ cancel_mkt_segment %>%
   ylab("cancel percantage") +
   labs(title = "Cancellation rate by market_segment")
 ```
+</center>
 
 We calculate the cancellation rate by taking the _number of cancellation bookings_ divided by _total bookings_ for each market segment. From figure \@ref(fig:guest-anatomy-plot), we see that Groups had an impressive rate of cancellation at 68.44% for City hotel and 42.14% for Resort, followed by Travel agency/ tour operator (both offline and Online). City hotel noticably had the top 3 cancellation percentage at a much higher level than Resort. Aviation or Air crew only showed up in City hotel, which actually made sense as airlines only need a place for their air crew to stay over and it does not have to be at a fancy resort. 
 
@@ -1003,6 +1056,7 @@ cancel_deposit <- cancel_anatomy %>%
   count(name = "count")
 ```
 
+<center>
 ```{r deposit-plot, fig.cap = "Deposit type" }
 p1 <- cancel_deposit %>%
   filter(reservation_status == "Canceled") %>%
@@ -1032,6 +1086,8 @@ p2 <- cancel_anatomy %>%
 
 grid.arrange(p1, p2, ncol = 2)
 ```
+</center>
+
 
 Figure \@ref(fig:deposit-plot) showed us something really interesting. If we looked at the absolute numbers of cancellation by counting the number of canceled bookings for each deposit type (left plot), we will have _no deposit_ as the highest with _non-refund_ followed by roughly a half. This came as no surprise as nowadays people were not expected to deposit for their stays, which made them more likely to cancel their bookings without spending a penny.  
 However, if we looked at the cancel rate by deposit type which we took the canceled bookings divided by all the bookings under each deposit type (right plot), we had a quite counter-intuitive discover. The _non_refund_ now had the highest rate of cancellation, leaving the other two types far behind. This implied that people actually canceled the bookings that they had paid in advance! This insight called for further investigation, ideally with a different dataset of different hotels to verify its validity.
@@ -1042,6 +1098,7 @@ Finally, we wanted to know dig a little bit further into the bizarre finding we 
 
 We will compute the percentage of repeated guests for all bookings, average number of previous cancellations, successful bookings, car parking space requests and special requests.   
 
+<center>
 ```{r request}
 cancel_request <- cancel_anatomy %>%
   select(-hotel, - agent, - arrival_date, - agent, - market_segment) %>%
@@ -1061,7 +1118,11 @@ cancel_request %>%
   
 ```
 
+</center>
+
 Table \@ref(tab:request) added more to the confusion when non-refund bookings had customers who were either quite new to the hotels (low % of repeated guests) or had made a lot of cancellations before (highest previous cancellations, lowest successful booking), rarely required parking space (lowest average requests for car parking space) and rarely posed special requests (lowest average special requests) yet still willing to pay in advance only to cancel later. To put in plain words, these customers were either too pissed off in the past (high previous cancellations), too new to the hotels or not too picky but still decided to pay first and lost all the advance payment by abadoning the bookings. This point clearly asked for further investigation to decide whether this is hotel-specific or industry-specific.  
+
+<br>
 
 
 # Conclusion
