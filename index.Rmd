@@ -23,7 +23,7 @@ library(tidyverse)
 library(lubridate)
 library(kableExtra)
 library(gridExtra)
-library(plotly) # REMEMBER TO ADD INTERACTIVE ELEMENTS
+library(plotly) 
 ```
 
 # Introduction and motivation
@@ -122,7 +122,7 @@ hotel_mngt <- hotels %>%
          year = as.numeric(arrival_date-arrival_date[1]) %/% 365+1)
 ```
 
-### Seasonality: 
+## Seasonality: 
 
 Tourism industry cares a lot about seasonality as it would affect the guest flows to tourist locations. Hotel season divided into two main seasons: the high and low season. As the name implies, high season is a busy season when the weather is favourable and the guests inflows are high; low season vice versa. Portugal is of no exception. The high season in Portugal usually runs in summer (June to September) and spring time (January to March) ; the beaches are usually the busiest in July and August. The low season usually falls in the winter season which starts around November and ends by the end of February. Weather during this period may feature humidity, unexpected rain and strong, cold breeze which is not too ideal for sightseeing. 
 
@@ -200,7 +200,7 @@ Unlike figure \@ref(fig:guest-by-month), figure \@ref(fig:ADR-by-month) showed a
 
 We noticed that in the dataset, some of the bookings recorded a very low ADR (less than 10 euros), some may even down to 1 Euro for non - complimentary rooms in both hotels. This may seem a little strange and could created an impact on the ADR we plotted above in figure \@ref(fig:ADR-by-month). However, we chose not to exclude those adr as we did not know the pricing policy of the hotels in question. 
 
-### Reservation status
+## Reservation status
 Another thing we can look at for the sake of comparison is the reservation status of these two hotels at figure \@ref(fig:cancel) below:
 
 ```{r cancel, fig.cap = "Reservation status by hotel type"}
@@ -402,7 +402,7 @@ Table \@ref(tab:request) added more to the confusion when non-refund bookings ha
 
 # Conclusion
 
-In this study, we started with 
+In this study, we tried to explore the dataset in many angels. We started by comparing the only two hotels featured in this study across all of the variables provided in the dataset and we found out that 
 
 
 
