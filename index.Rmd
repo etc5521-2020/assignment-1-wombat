@@ -7,12 +7,12 @@ author:
   - Dewi Lestari Amaliah
 date: "`r Sys.Date()`"
 output: 
-  html_document
+  bookdown::html_document2
 ---
 
 [This assignment is for ETC5521 Assignment 1 by Team `r rmarkdown::metadata$team` comprising of `r knitr::combine_words(rmarkdown::metadata$author)`.]{style="color:#006DAE;"}
 
-```{r setup, include = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE)
@@ -20,12 +20,22 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ```{r library}
 library(tidyverse)
+library(lubridate)
+library(kableExtra)
+library(gridExtra)
+library(plotly) 
 ```
-
 
 # Introduction and motivation
 
-[FILL] Give the bigger picture of the data, and inspire the reader to learn more about the problem by reading your analysis. 
+Obtaining data from hotel industry has always been a real challenge. While we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
+
+The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
+
+In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scence. What can we learn about the way hotels manage their customers'info, how they priced our bookings or who are more likely to cancel their bookings. 
+
+We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis. 
+
 
 # Data description
 
@@ -33,7 +43,7 @@ library(tidyverse)
 
 In 2018, Nuno Antonio, Ana de Almeida and Luis Nunes published a data article called "Hotel booking demand datasets" which introduced to the public two datasets for two hotels in Portugal, one resort in Algarve (H1) and one city hotel in Lisbon (H2). These datasets were originally collected to serve the development of prediction models to assess the hotels' likelihood of having their bookings cancelled, however the uses of variables included also allow other researching purposes. 
 
-The datasets for the two hotels can be downloaded separately at https://www.sciencedirect.com/science/article/pii/S2352340918315191. However, *jthomasmock* at _tidytuesday challenge_ had done us a favor and combined the two datasets into one. The two original datasets and the combined one can be obtained at https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md. 
+The datasets for the two hotels can be downloaded separately at https://www.sciencedirect.com/science/article/pii/S2352340918315191. However, *jthomasmock* at _tidytuesday challenge_ had done us a favor and combined the two datasets into one. The two original datasets and the combined one can be obtained at https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md. For this study, we used only the combined dataset.  
 
 The dataset is stored in a _csv_ file format with 32 variables and 119,390 observations (40,060 for H1 and 79,330 for H2). Each observation represents one hotel booking. The format of the dataset is as below:
 
@@ -43,47 +53,54 @@ hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 glimpse(hotels)
 ```
 
-Knowing this dataset belonged to a hotel, we can make sense most of the variables. However, not all of them are familiar for anyone who did not have a background of hotel management. We will run through some of the industry jargons and variables' meaning before we take a further look at the data.
- 
-- is_cancelled: (1) if the booking was cancelled and (0) if not.  
-- lead_time: number of days between when the booking was entered into the hotel's booking system and the arrival date.  
-- meal:  Type of meal booked which can be:  
-  * BB: Bed and Breakfast.  
-  * FB: Full board (breakfast, lunch and dinner).  
-  * HB: Half board (breakfast and one meal, usually dinner).  
-  * Undefined/ SC: no meal package.  
-- country:  Guests'country of origin.  
-- market_segment: guests'market segment, some of which may associate with booking channel.    
-  * Direct: guests that make bookings directly with the hotels, could be from hotel's website/ phone booking or walk-ins.  
-  * Corporate: Guests whom bookings are made by corporate/ company or guests who are business travellers.    
-  * Online TA: Online travel agents - bookings that made through a third party websites. Examples are Agoda, Expedia, Booking.com...  
-  * Offline TA/TO: Bookings made by Travel agents or Tour operators.  
-  * Complementary: Free stays offered for guests, usually from hotels' promotional programs.    
-  * Groups: guests who travelled in groups.  
-  * Undefined: Undefined type of guests.  
-  * Aviation: We are not entirely sure but this could be airline crews.    
-- Distribution_channel:   
-  * Direct: bookings that made directly with the hotels (hotel's websites, phone or walk-ins)  
-  * Corporate:  bookings made by corporate/company.
-  * TA/TO: Travel agents/ tour operators/    
-  * Undefined: Undefined distribution channel.  
-  * GDS: Global Distribution System. GDS served like a hub for companies in the travel industry (airlines, hotels, car rental...) to connect with travel agents. Hotels will put some of their inventories (rooms) to the GDS and travel agents then can sell those rooms to their customers. Some of the well-known GDS include Amadeus, Sabre and Galileo.   
-- is_repeated_guess: (1) if repeated and (0) if not.   
-- customer_type:    
-  * Transient: Individuals or groups that occupy less than 10 rooms per night. These guests usually stay in the hotel short - term and require little services.  
-  * Contract: bookings bound by contracts, usually for more than 30 days for a consistent block of rooms.  
-  * Transient - Party: Transient booking but associated to other transient booking.   
-  * Group: bookings associated to a group, usually occupy more than 10 rooms per night.  
-- previous_cancellations: number of previous cancellations prior to current booking by a customer.  
-- previous_bookings_not_canceled: number of previous non - cancelled bookings prior to current booking by a customer.  
-- reserved_room_type and assigned_room_type: For anonymity purpose, the name of the room categories were replaced by code which are letters. The reserved room type may not be the same with the assigned room type when the customer checked in, which may due to hotel's operation reason (overbooking, room upgrade for promotional purpose) or at the customers'requests.  
-- booking_changes: number of changes made to the booking from when it was enterred into the system till the day of arrival/ cancellation.    
-- agent: ID of travel agency that made the bookings.  
-- company: ID of companies that made the bookings.  
-- days_in_waiting_list: number of days booking was in the waiting list before it was confirmed to customers.  
-- adr: Average Daily Rate, computed by taking total room revenue (excluded breakfast, tax and service charges) divided by total number of room nights sold.  
+Knowing this dataset belonged to a hotel, we can make sense most of the variables. However, not all of them are familiar for anyone who did not have a background of hotel management. We will run through some of the industry jargons and variables'meaning before we take a further look at the data.
+
+Variables note:  
+
+*  is_cancelled: (1) if the booking was cancelled and (0) if not.  
+*  lead_time: number of days between when the booking was entered into the hotel's booking system and the |arrival date.  
+*  meal:  Type of meal booked which can be:  
+   +  BB: Bed and Breakfast.  
+   +  FB: Full board (breakfast, lunch and dinner).  
+   +  HB: Half board (breakfast and one meal, usually dinner).  
+   +  Undefined/ SC: no meal package.  
+* country:  Guests'country of origin.  
+* market_segment: guests'market segment, some of which may associate with booking channel.    
+   +  Direct: guests that make bookings directly with the hotels, could be from hotel's website/ phone booking or walk-ins.  
+   +  Corporate: Guests whom bookings are made by corporate/ company or guests who are business travellers.    
+   +  Online TA: Online travel agents - bookings that made through a third party websites. Examples are Agoda, Expedia, Booking.com...  
+   +  Offline TA/TO: Bookings made by Travel agents or Tour operators.  
+   +  Complementary: Free stays offered for guests, usually from hotels' promotional programs.    
+   +  Groups: guests who travelled in groups.  
+   +  Undefined: Undefined type of guests.  
+   +  Aviation: We are not entirely sure but this could be airline crews.    
+* Distribution_channel:   
+   +  Direct: bookings that made directly with the hotels (hotel's websites, phone or walk-ins)  
+   +  Corporate:  bookings made by corporate/company.
+   +  TA/TO: Travel agents/ tour operators/    
+   +  Undefined: Undefined distribution channel.  
+   +  GDS: Global Distribution System. GDS served like a hub for companies in the travel industry (airlines, hotels, car rental...) to connect with travel agents. Hotels will put some of their inventories (rooms) to the GDS and travel agents then can sell those rooms to their customers. Some of the well-known GDS include Amadeus, Sabre and Galileo.   
+* is_repeated_guess: (1) if repeated and (0) if not.   
+* customer_type:    
+    + Transient: Individuals or groups that occupy less than 10 rooms per night. These guests usually stay in the hotel short - term and require little services.  
+    + Contract: bookings bound by contracts, usually for more than 30 days for a consistent block of rooms.  
+    + Transient - Party: Transient booking but associated to other transient booking.   
+    + Group: bookings associated to a group, usually occupy more than 10 rooms per night.  
+* previous_cancellations: number of previous cancellations prior to current booking by a customer.  
+* previous_bookings_not_canceled: number of previous non - cancelled bookings prior to current booking by a customer.  
+* booking_changes: number of changes made to the booking from when it was enterred into the system till the day of arrival/ cancellation.    
+* agent: ID of travel agency that made the bookings.  
+* company: ID of companies that made the bookings.  
+* days_in_waiting_list: number of days booking was in the waiting list before it was confirmed to customers.  
+* adr: Average Daily Rate, computed by taking total room revenue (excluded breakfast, tax and service charges) divided by total number of room nights sold.  
 
 You may notice that some variables contained the "NULL" values (eg: agent or company variable). This "NULL" value did not mean the value was missing, rather such value did not exist to begin with; for example a booking may not have the ID of an agent or a company associated with it as such booking was made by an individual traveller.  
+
+# Limitation
+
+* This dataset contained data for two specific hotels in Portugal. Such limitation in study objects introduced challenges when we attempted to explain the trends observed as reasons could be hotel- specific and we could not use industry knowledge to cover.  
+* Some information of the hotels were not provided, for example the number of rooms, the occupancy rate, the location of the hotels (in the busy district or at the city suburban), years of operation or special events that might have occured. The lack of information might render some of our questions unanswered.  
+* Eventhough we were provided with the collection method, we were not be able to verify the validity and correctness of the data. We noticed during our analysis that some of the entries were not sensible and could very likely due to the input errors. However we were unable to verify such concern.  
 
 ## Time Frame of Collection
 
@@ -123,9 +140,311 @@ This question is then derived to three secondary questions as follow:
 2. Is there any difference in hotel booking between high season and low season?
 3. Is there any noticeable change in booking pattern in both types of hotels through the years?
 
-
 # Analysis and findings
 
-[FILL] Should include at least one plot or numerical summary for each of your questions, that helps the reader arrive at an answer. You should also write paragraphs describing the methods, summaries and findings. 
+We started with 31 variables to look at, and really without any distinct direction, so we started off by looking at some of the most prominent features of hotels. 
+
+```{r var-choose}
+hotel_mngt <- hotels %>%
+  mutate(arrival_date = dmy(paste0(arrival_date_day_of_month, arrival_date_month, arrival_date_year, sep = "-"))) %>%
+  select(hotel, arrival_date, arrival_date_week_number,arrival_date_month, arrival_date_year, lead_time,
+         previous_cancellations, previous_bookings_not_canceled, deposit_type, booking_changes,deposit_type,
+         agent, days_in_waiting_list, required_car_parking_spaces, total_of_special_requests, 
+         reservation_status, reservation_status_date, customer_type, market_segment, adr, is_repeated_guest, adults, children, babies) %>%
+  # Tweaking a bit
+  mutate(hotel = as.factor(hotel),
+         year = as.numeric(arrival_date-arrival_date[1]) %/% 365+1)
+```
+
+## Seasonality: 
+
+Tourism industry cares a lot about seasonality as it would affect the guest flows to tourist locations. Hotel season divided into two main seasons: the high and low season. As the name implies, high season is a busy season when the weather is favourable and the guests inflows are high; low season vice versa. Portugal is of no exception. The high season in Portugal usually runs in summer (June to September) and spring time (January to March) ; the beaches are usually the busiest in July and August. The low season usually falls in the winter season which starts around November and ends by the end of February. Weather during this period may feature humidity, unexpected rain and strong, cold breeze which is not too ideal for sightseeing. 
+
+Keeping the season time in mind, we are interested in finding out any possible influence seasonality may have on the guest count and adr of our hotels in study. The analysis in this section took into account only "Check-out" or successful bookings to avoid inflating numbers. 
+
+**Guest Count**
+
+First, we tried to plot the guest count by month for each year to check if the seasonality is consistent through years (it should be unless some one - off events took place and disturbed the market). Problems arised when we wanted to look at the yearly subset of our records and as our dataset ran from 1 July 2015 to 31 August 2017, we could not group the data by their conventional year of 2015, 2016 and 2017. We decided to break down the dataset into three groups by allocating 12 months into each and called them year 1,2 and 3. As Year 3 only had 2 months, we dropped that year and focused only on two Year 1 (July 2015 - June 2016) and Year 2 (July 2016 to June 2017). The result is presented in figure \@ref(fig:guest-by-month) below. 
+
+```{r season}
+season <- hotel_mngt %>%
+  select(hotel, arrival_date_month, year,reservation_status, customer_type, market_segment, adr, adults, children, babies) %>%
+  # Choose successful bookings only to avoid distortion of adr
+  filter(reservation_status == "Check-Out",
+  # filter out bookings with ADR < 0 - there are bookings with negative adr!
+         market_segment >= 0) %>%
+  # convert month to factor for plotting purpose
+  mutate(arrival_date_month = as.factor(arrival_date_month),
+         total_guests = adults + children + babies)
+```
+
+```{r guest-by-month, fig.cap = "Number of guests by month"}
+# Guests count by month
+season %>%
+  group_by(hotel, year, arrival_date_month) %>%
+  summarise(total_guests = sum(total_guests)) %>%
+  # Year 3 does not have full years (3 months only) so we used year 1 and 2
+  filter(!year == 3) %>%
+  # Grouping will make geom_line runs in a straight vertical line
+  ungroup() %>%
+  ggplot(aes(x = factor(arrival_date_month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")), y = total_guests,
+             group=factor(year), colour=factor(year))) +
+  geom_line() +
+  theme_classic() +
+  facet_wrap(~hotel) +
+  labs(title = "Number of guests by month",
+       x = "month",
+       y = "total guests",
+       colour = "Year") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("#000080", "#FF0000"))
+```
+
+The months are presented in the order of occurence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) while in year 2, the highest was observed in the summer time (August and October). 
+
+There were some anormalities, however, spotted, of which the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 while Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
+
+Next we look at the **Average Daily Rate** or ADR in short. 
+
+```{r ADR-by-month, fig.cap = "ADR by month"}
+# ADR by months
+adr <- season %>%
+  group_by(hotel, year, arrival_date_month) %>%
+  # Year 3 does not have full years (3 months only) so we used year 1 and 2
+  filter(!year == 3) %>%
+  summarise(avg_adr = mean(adr)) %>%
+  # Grouping will make geom_line runs in a straight vertical line
+  ungroup() %>%
+  ggplot(aes(x = factor(arrival_date_month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")), y = avg_adr,
+             group=factor(year), colour=factor(year))) +
+  geom_line() +
+  theme_classic() +
+  facet_wrap(~hotel) +
+  labs(title = "Adr by month",
+       x = "month",
+       y = "currency",
+       colour = "Year") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("#000080", "#FF0000"))
+
+ggplotly(adr)
+```
+
+Unlike figure \@ref(fig:guest-by-month), figure \@ref(fig:ADR-by-month) showed a striking difference between the two hotels. Resort had the highest rates in the summer time, which make sense as Algrave is a beach area. Both hotels recorded the lowest rates in winter, however City hotel observed less fluctuation than resort. 
+
+We noticed that in the dataset, some of the bookings recorded a very low ADR (less than 10 euros), some may even down to 1 Euro for non - complimentary rooms in both hotels. This may seem a little strange and could created an impact on the ADR we plotted above in figure \@ref(fig:ADR-by-month). However, we chose not to exclude those adr as we did not know the pricing policy of the hotels in question. 
+
+## Reservation status
+Another thing we can look at for the sake of comparison is the reservation status of these two hotels at figure \@ref(fig:cancel) below:
+
+```{r cancel, fig.cap = "Reservation status by hotel type"}
+hotel_status <- hotel_mngt %>%
+  select(hotel, reservation_status, arrival_date_year) %>%
+  group_by(hotel,arrival_date_year, reservation_status) %>%
+  count()
+
+# Plot reservation status by year and hotel
+hotel_status %>% 
+  ggplot(aes(x = hotel, y = n, fill = reservation_status)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_classic() +
+  xlab("") +
+  ylab("number of bookings") +
+  labs(title = "Reservation status by hotel type")
+```
+
+Cancellation seems to be a problem in city hotel. Visually, the number of cancelation in city hotel was way higher than resort. However, since the total number of bookings in the two hotels were very different to begin with, we might want to check the proportion rather than the absolute number.   
+
+```{r cancellation}
+# what is the cancellation rate?
+hotel_cancel <- hotel_mngt %>%
+  select(hotel, arrival_date ,reservation_status) %>%
+  group_by(hotel, reservation_status) %>%
+  count() %>%
+  pivot_wider(names_from = reservation_status, values_from = n, values_fill = 0) %>%
+  mutate(total_bookings = Canceled + `Check-Out` + `No-Show`) %>%
+  mutate(prop_cancel = round(Canceled/ total_bookings,4))
+
+hotel_cancel %>%
+  kable(caption = "Overall cancellation rate") %>%
+  kable_styling(bootstrap_options = c("hover", "stripping"))
+```
+
+In table \@ref(tab:cancellation), the overall cancelation rate of 3 years posed a striking difference between city hotel and resort: `r with(hotel_cancel, prop_cancel[match("City Hotel",hotel)])*100` percent vs `r with(hotel_cancel, prop_cancel[match("Resort Hotel",hotel)])*100` percent. What factor could possibly contribute to such difference? Did the problem come from the hotel itself or from whatever happened in the overall tourism industry at that point in time? To answer that question, we proceed to find out the common points in both hotel's cancellation pool. 
+
+**How do the cancellations have in common?**
+
+The Hotel's PMS recored the _lead time_, which is the number of days elapse between the entering date of the booking into the system and the arrival date, the _reservation status date_ and the _days in waiting list_, which is the number of days before the booking was confirmed with the customers. A high days in waiting list indicating that a booking takes longer to proceed and a high lead time indicating that the booking was made earlier prior to the arrival date.  
+
+```{r}
+cancel_only <- hotel_mngt %>%
+  filter(reservation_status == "Canceled") %>%
+  select(-arrival_date_week_number)
+```
+
+```{r system-days, fig.cap = "System days of cancellation bookings"}
+# visualise the days in system and cancellation day
+cancel_only %>%
+  select(hotel, days_in_waiting_list, lead_time) %>%
+  pivot_longer(-hotel, names_to = "system_day", values_to = "days") %>%
+  ggplot(aes(x = system_day, y = days, fill = hotel)) +
+  geom_boxplot() +
+  theme_classic() +
+  xlab("Type of days") +
+  labs(title = "System days of cancelled bookings")
+
+```
+
+Both hotels seems to proceed customers' bookings with great speed with the median waiting days at around 0 days. However, city hotel had a lot of cancelled bookings that sat through a significantly high number of days in the system before they were confirmed to the customers. On other note, city hotel had a high range of lead time and days in the system, signalling that bookings which were made too early prior arrival time may have higher chance of being cancelled.
+
+We will look futher at this assumption, but this time comparing check-out with cancelled bookings to verify the impact of lead time and days in waiting list on the cancellation rate.  
+
+**Check-out vs Cancelled**
+
+We want to compare the days in waitng list and days in system for both hotels. Will a booking that takes too long to proceed (high days in waiting list) or is made too early before the arrival date (high lead time) more prone to cancellation?
+
+```{r checkout}
+status_compare <- hotel_mngt %>%
+  filter(!reservation_status == "No-Show") %>%
+  select(-arrival_date_week_number)
+```
+
+```{r checkout-plot, fig.cap = "System days of Check-out and Canceled"}
+status_compare %>%
+  select(hotel, reservation_status,lead_time, days_in_waiting_list) %>%
+  pivot_longer(-c(hotel, reservation_status), names_to = "system_day", values_to = "days") %>%
+  ggplot(aes(x = system_day, y = days, fill = reservation_status)) +
+  geom_boxplot() +
+  xlab("Type of days") +
+  labs(title = "System days of bookings") +
+  theme_classic() +
+  scale_fill_brewer(palette="Dark2")
+```
+
+At the first glance at figure \@ref(fig:checkout-plot), both types of bookings still maintained a median days of waiting as 0 days, cancelled bookings had a lower days in system compared to check-out, which was no surprises as cancellations usually are done days before the arrival date. However, lead time for cancelled bookings were much higher than of Check-out, except for the two outliners of check-out which exceed 650 days. This confirmed our assumption of lead time having an impact on the cancellation chance. The earlier the booking, the higher the chance of cancellation. 
+
+**The one who got away**
+
+Having known which kind of the bookings are more likely to get cancelled, we are interested in knowing who were the one behind those bookings. We started by looking at the market segment of these cancellation:
+
+```{r guest-anatomy}
+cancel_anatomy <- hotel_mngt %>%
+  select(reservation_status, hotel, market_segment, agent, arrival_date, deposit_type, 
+         previous_cancellations, previous_bookings_not_canceled, required_car_parking_spaces, 
+         total_of_special_requests, reservation_status, is_repeated_guest)
+
+cancel_mkt_segment <- cancel_anatomy %>%
+  select(market_segment, reservation_status, hotel) %>%
+  group_by(hotel, market_segment, reservation_status) %>%
+  count() %>%
+  pivot_wider(names_from = reservation_status, values_from = n, values_fill = 0) %>%
+  ungroup() %>%
+  mutate(total_booking = Canceled + `No-Show` + `Check-Out`,
+         percent_cancel = round(Canceled/total_booking*100,2)) %>%
+  arrange(desc(percent_cancel))
+```
+
+```{r guest-anatomy-plot, fig.cap = "Who are more likely to cancel?"}
+cancel_mkt_segment %>%
+  filter(!market_segment == "Undefined") %>%
+  ggplot(aes(x = fct_reorder(market_segment, percent_cancel), y = percent_cancel)) +
+  geom_bar(stat = "identity", fill = "#006DAE") +
+  geom_text(aes(label = percent_cancel, hjust = 1), color = "white") +
+  theme_classic() +
+  coord_flip() +
+  facet_wrap(~hotel) +
+  xlab("market segment") +
+  ylab("cancel percantage") +
+  labs(title = "Cancellation rate by market_segment")
+```
+
+We calculate the cancellation rate by taking the _number of cancellation bookings_ divided by _total bookings_ for each market segment. From figure \@ref(fig:guest-anatomy-plot), we see that Groups had an impressive rate of cancellation at 68.44% for City hotel and 42.14% for Resort, followed by Travel agency/ tour operator (both offline and Online). City hotel noticably had the top 3 cancellation percentage at a much higher level than Resort. Aviation or Air crew only showed up in City hotel, which actually made sense as airlines only need a place for their air crew to stay over and it does not have to be at a fancy resort. 
+
+Now that we know Groups were mostly the ones who defaulted the most, we hope to know the why they did what they did, i.e cancelled their bookings. Was this because of the deposit policy or their requests not being fullfilled? We moved on to look at deposit and other guest'sspecial requests in search for the reasons. 
+
+**Deposit policy**
+
+We gathered all the cancelled bookings and divided them by their deposit type.  
+
+```{r deposit}
+cancel_deposit <- cancel_anatomy %>%
+  select(reservation_status, deposit_type) %>%
+  group_by(reservation_status, deposit_type) %>%
+  count(name = "count")
+```
+
+```{r deposit-plot, fig.cap = "Deposit type" }
+p1 <- cancel_deposit %>%
+  filter(reservation_status == "Canceled") %>%
+  ggplot(aes(x = deposit_type, y = count, fill = deposit_type)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  labs(title = "Cancellation by deposit count") +
+  xlab("deposit type")
+
+p2 <- cancel_anatomy %>%
+  select(reservation_status, deposit_type) %>%
+  group_by(deposit_type, reservation_status) %>%
+  count(name = "count") %>%
+  pivot_wider(names_from = reservation_status, values_from = count, values_fill = 0) %>%
+  mutate(prop_cancel = round(Canceled/(Canceled+`Check-Out`+`No-Show`),3)) %>%
+  ggplot(aes(y = prop_cancel, x = deposit_type, fill = deposit_type)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  labs(title = "Cancellation by deposit percentage") +
+  xlab("deposit type") 
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Figure \@ref(fig:deposit-plot) showed us something really interesting. If we looked at the absolute numbers of cancellation by counting the number of canceled bookings for each deposit type (left plot), we will have _no deposit_ as the highest with _non-refund_ followed by roughly a half. This came as no surprise as nowadays people were not expected to deposit for their stays, which made them more likely to cancel their bookings without spending a penny.  
+However, if we looked at the cancel rate by deposit type which we took the canceled bookings divided by all the bookings under each deposit type (right plot), we had a quite counter-intuitive discover. The _non_refund_ now had the highest rate of cancellation, leaving the other two types far behind. This implied that people actually canceled the bookings that they had paid in advance! This insight called for further investigation, ideally with a different dataset of different hotels to verify its validity.
+
+**Other special requests**
+
+Finally, we wanted to know dig a little bit further into the bizzarre finding we made earlier. What made people threw away good money by cancelling the bookings they had paid before actually arrived at the premises? Could it be because per each deposit type, the hotels could not answer their requests (lacks parking spaces, unable to respond to special requests)? We will try to look at these elements for each deposit type to find out.  
+
+We will compute the percentage of repeated guests for all bookings, average number of previous cancellations, successful bookings, car parking space requests and special requests.   
+
+```{r request}
+cancel_request <- cancel_anatomy %>%
+  select(-hotel, - agent, - arrival_date, - agent, - market_segment) %>%
+  # filter(reservation_status == "Canceled") %>%
+  group_by(deposit_type) %>%
+  summarise(bookings_count = n(),
+            percent_repeated_guest = sum(is_repeated_guest == 1)/bookings_count,
+            previous_cancellations = mean(previous_cancellations),
+            previous_successful_booking = mean(previous_bookings_not_canceled),
+            car_parking_space = mean(required_car_parking_spaces),
+            special_requests = mean(total_of_special_requests))
+
+cancel_request %>%  
+  kable(title = "Summary statistics") %>%
+  kable_styling(bootstrap_options = c("hover", "stripped")) %>%
+  row_spec(2, bold = T, background = "#ffd700")
+  
+```
+
+Table \@ref(tab:request) added more to the confusion when non-refund bookings had customers who were either quite new to the hotels (low % of repeated guests) or had made a lot of cancellations before (highest previous cancellations, lowest successful booking), rarely required parking space (lowest average requests for car parking space) and rarely posed special requests (lowest average special requests) yet still willing to pay in advance only to cancel later. To put in plain words, these customers were either too pissed off in the past (high previous cancellations), too new to the hotels or not too picky but still decided to pay first and lost all the advance payment by abadoning the bookings. This point clearly asked for further investigation to decide whether this is hotel-specific or industry-specific.  
+
+
+# Conclusion
+
+In this study, we tried to explore the dataset in many angels. We started by comparing the only two hotels featured in this study across all of the variables provided in the dataset and we found out that 
+
+
+
 
 # References
+
+Definition https://str.com/sites/default/files/2019-11/str-data-reporting-guidelines-english-2019.pdf
+EDA_example (https://www.kaggle.com/marcuswingen/eda-of-bookings-and-ml-to-predict-cancelations)
+https://lisbonlisboaportugal.com/lisbon-tour/lisbon-weather-when-to-go-visit.html
+
+
