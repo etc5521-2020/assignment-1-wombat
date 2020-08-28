@@ -1,6 +1,6 @@
 ---
 title: "ETC5521 Assignment 1"
-subtitle: "Exploring Hotel Dataset"
+subtitle: "An Initial Exploratory Of A Hotel Dataset"
 team: WOMBAT
 author:
   - Hai Hanh Ngo
@@ -34,9 +34,9 @@ library(viridisLite)
 library(naniar)
 ```
 
-# Introduction and motivation
+# Introduction
 
-Obtaining data from hotel industry has always been a real challenge. While we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
+Obtaining data from hotel industry has always been a real challenge. Whilst we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
 
 The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes [@AntonioNuno2019Hbdd] was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
 
@@ -201,7 +201,6 @@ hotels_corrected_type <- hotels %>%
 ```
 
 
-
 <center>
 
 ```{r data-type, cache = TRUE, fig.cap= "Data Type Visualization"}
@@ -266,6 +265,7 @@ hotels_new_data <- hotels_corrected_type %>%
 <br>
 <br>
 
+
 # Analysis and findings
 
 We started with 31 variables to look at, and really without any distinct direction, so we started off by looking at some of the most prominent features of hotels. 
@@ -326,9 +326,9 @@ season %>%
   scale_color_manual(values = c("#000080", "#FF0000"))
 ```
 
-The months are presented in the order of occurence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) while in year 2, the highest was observed in the summer time (August and October). 
+The months are presented in the order of occurence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) whilst in year 2, the highest was observed in the summer time (August and October). 
 
-There were some anormalities, however, spotted, of which the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 while Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
+There were some anormalities, however, spotted, of which the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 whilst Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
 
 Next we look at the **Average Daily Rate** or ADR in short. 
 
@@ -368,7 +368,7 @@ According to @meier, a relevant market segment is one of the key to be successfu
 
 Figure \@ref(fig:market-segment) shows that the vast majority of bookings in both hotel were made through Online Travel Agent (OTA). In addition, the portion of bookings through OTA was bigger in the city hotel than in the resort hotel. In contrast with the city hotel, we could see more portion of direct bookings in the resort hotel than group bookings.
 
-A study from [Phocuswright](https://www.pegs.com/blog/why-do-travelers-prefer-booking-with-otas/) in @pegs stated that one of the major reason of why do the people book trough OTA is beacuse the website is easy to use. Meanwhile, @howe argued that OTAs are favorable because its easy booking option. According to @jedina2017exploring in @TalwarShalini2020Wdpp, the factors for booking the hotel through OTA are the accessibility, pricing, review accountability, and the customer services. 
+A study from [Phocuswright](https://www.pegs.com/blog/why-do-travelers-prefer-booking-with-otas/) in @pegs stated that one of the major reason of why do the people book trough OTA is beacuse the website is easy to use. Meanwhilst, @howe argued that OTAs are favorable because its easy booking option. According to @jedina2017exploring in @TalwarShalini2020Wdpp, the factors for booking the hotel through OTA are the accessibility, pricing, review accountability, and the customer services. 
 
 
 <center>
@@ -680,7 +680,7 @@ ggplotly(room_dist_origin)
 
 </center>
 
-Another fact presented in Figure \@ref(fig:room-dist) is that the room type booked were more vary in the resort hotel, whilst in the city hotel, the room choice polarized to room type A and D. This finding could be a fruitful insight that the city hotel could improve their service to these best seller rooms. 
+Another fact presented in Figure \@ref(fig:room-dist) is that the room type booked were more varied in the resort hotel, whilst in the city hotel, the room choice polarized to room type A and D. This finding could be a fruitful insight that the city hotel could improve their service to these best seller rooms. 
 
 <center>
 
@@ -721,7 +721,7 @@ p_same_day_checkout_intl <- round(nrow(same_day_checkout_intl)/nrow(same_day_che
 
 During the exploration, we found an interesting case in which the guests did not spend any night in the hotel neither they canceled the bookings and no show. It means that the guest checked out in the same day they checked in. There are `r nrow(same_day_checkout)` actual bookings where the guests did a same day check out and we found that `r p_same_day_checkout_intl` percent are international bookings. 
 
-We observed further by checking the distribution of international guest who were really spend the nights at the hotels. We found in Figure \@ref(fig:length-of-stay-hist-city), that most guest in the city hotel spent 3 days in the city hotel. In the resort hotel, most guests spent longer, which is 7 days (Figure \@ref(fig:length-of-stay-hist-resort)). In addition, generally, the length of stay of the guests in the city hotel was relatively shorter than the guest in the resort hotel. In the resort, the guests length of stay was also more vary. These fact are not surprising because typically resort guest intentionally want to spend the days in the resort and enjoy their service. Meanwhile, the city hotel guests might be a regular travelers who wanted to explore Lisbon or did a Europe trip. 
+We observed further by checking the distribution of international guest who were really spend the nights at the hotels. We found in Figure \@ref(fig:length-of-stay-hist-city), that most guest in the city hotel spent 3 days in the city hotel. In the resort hotel, most guests spent longer, which is 7 days (Figure \@ref(fig:length-of-stay-hist-resort)). In addition, generally, the length of stay of the guests in the city hotel was relatively shorter than the guest in the resort hotel. In the resort, the guests length of stay was also more varied. These facts are not surprising because typically resort guest intentionally want to spend more days in the resort and enjoy their service. Meanwhile, the city hotel guests might be a regular travelers who wanted to explore Lisbon or did a Europe trip. 
 
 
 <center>
@@ -793,7 +793,7 @@ ggplotly(when_stay_plot)
 
 <br>
 
-** Family Doesn't Matter, Couple Does. **
+**Family Doesn't Matter, Couple Does.**
 
 Now, we want to look at the type of international guest who stayed in both hotels. Here, we classified them by "family", which is the guest that travel with kids, and "not a family". Figure \@ref(fig:family-plot) portrays that the vast majority of guest in both city and resort hotel were not traveling with kids. The proportion in both hotels even exactly the same. 
 
@@ -990,7 +990,7 @@ cancel_mkt_segment %>%
 
 We calculate the cancellation rate by taking the _number of cancellation bookings_ divided by _total bookings_ for each market segment. From figure \@ref(fig:guest-anatomy-plot), we see that Groups had an impressive rate of cancellation at 68.44% for City hotel and 42.14% for Resort, followed by Travel agency/ tour operator (both offline and Online). City hotel noticably had the top 3 cancellation percentage at a much higher level than Resort. Aviation or Air crew only showed up in City hotel, which actually made sense as airlines only need a place for their air crew to stay over and it does not have to be at a fancy resort. 
 
-Now that we know Groups were mostly the ones who defaulted the most, we hope to know the why they did what they did, i.e cancelled their bookings. Was this because of the deposit policy or their requests not being fullfilled? We moved on to look at deposit and other guest'sspecial requests in search for the reasons. 
+Now that we know Groups were mostly the ones who defaulted the most, we hope to know the why they did what they did, i.e cancelled their bookings. Was this because of the deposit policy or their requests not being fullfilled? We moved on to look at deposit and other guest's special requests in search for the reasons. 
 
 **Deposit policy**
 
@@ -1066,15 +1066,18 @@ Table \@ref(tab:request) added more to the confusion when non-refund bookings ha
 
 # Conclusion
 
-In this study, we tried to explore the dataset in many angels. We started by comparing the only two hotels featured in this study across all of the variables provided in the dataset and we found out that 
+In this study, we tried to explore the dataset in many angels. We started by comparing the two hotels featured in this study across all of the variables provided in the dataset. 
 
+We found out that the two hotels followed the overall seasonality trend in Portugal where high season fell in the spring and summer time. The ADR for two hotels were priced at a different rates with City hotel observed less fluctuation than Resort did. Also, by market segment, the ADR of the OTA and Direct booking channel appreared to be quite competitive even though the OTA's prices were still a bit better. 
 
+By guests origin, around 40% - 44% of the bookings were from local tourists. A vast majority of international guests were delivered through OTA channel (50% - 68%) which again emphasized the influence of this channel over the hotel industry. We also learnt that it was the international guests who paid more for the services and the room choices. 
 
+Another thing we could learn of the guests'behaviour was that guests would spend more days in resort rather than city hotel. Our dataset pointed out that resort had a handful of guests staying for up to 7 days whilst in the city hotel was 3 days. There were 675 cases recorded where guests did not stay overnight and 14.07% of those were of international travellers, higlighting a difference that locations of the two hotels could make with the resorts being in the beach area of Algrave and the city hotels in Lisbon where guests might be a regular travelers who wanted to explore Lisbon or did a Europe trip. Interestingly, most guests stayed in our two hotels were couples with resort having received more couples than city hotel. 
 
-# References
+On a not so bright side, city hotels observed a 1.5 times higher in cancellation rate than resort. Most cancellations were common in that they steamed either from the bookings that were made too early in prior of the actual arrival date, or from bookings made by Groups and Travel agencies (both online and offline). We suspected that the loose cancellation policy of the OTA had promoted guests to abandon their bookings. Another counter - intuitive finding we discovered was that non - refund deposit group held the highest rate of cancellation; coupled with further looking into factors such as guests'special requests, we infered that customers who dropped out were either quite new to the hotels, had made a lot of cancellations before, rarely required parking space or rarely posed special requests yet still willing to pay in advance only to cancel later. 
 
-Definition https://str.com/sites/default/files/2019-11/str-data-reporting-guidelines-english-2019.pdf
-EDA_example (https://www.kaggle.com/marcuswingen/eda-of-bookings-and-ml-to-predict-cancelations)
-https://lisbonlisboaportugal.com/lisbon-tour/lisbon-weather-when-to-go-visit.html
+Throughout this study, we had encountered a lot of questions which can both be answered and not. We started with some initial generic questions and actually ended up with more detailed questions and an unexpected turn where we did not expect in the beginning (the cancellation digging was a nice surprise). We also had to make a lot of assumptions to facilitate our analysis which in turns, enriched our knowledge base as we had to scan through a myriad of studies looking for the answers. Overall, we enjoyed our little challenge with this dataset and hope that anyone who reads this excersise could be inspired too.  
+
+# Reference
 
 
