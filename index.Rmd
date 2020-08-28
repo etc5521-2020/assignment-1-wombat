@@ -40,11 +40,11 @@ library(naniar)
 
 # Introduction 
 
-Obtaining data from hotel industry has always been a real challenge. Whilst we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
+Obtaining data from hotel industry has always been a real challenge. Whilst we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scene. This sad truth was foreseeable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hoteliers and many others to perform any studies relating to this industry.
 
 The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes [@AntonioNuno2019Hbdd] was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
 
-In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scence. What can we learn about the way hotels manage their customers' info, how they priced our bookings or who are more likely to cancel their bookings. 
+In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scene. What can we learn about the way hotels manage their customers' info, how they priced our bookings or who are more likely to cancel their bookings. 
 
 We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis
 
@@ -304,9 +304,9 @@ hotel_mngt <- hotels %>%
 
 ## Seasonality: 
 
-Tourism industry cares a lot about seasonality as it would affect the guest flows to tourist locations. Hotel season divided into two main seasons: the high and low season. As the name implies, high season is a busy season when the weather is favourable and the guests inflows are high; low season vice versa. Portugal is of no exception. The high season in Portugal usually runs in summer (June to September) and spring time (January to March) ; the beaches are usually the busiest in July and August. The low season usually falls in the winter season which starts around November and ends by the end of February. Weather during this period may feature humidity, unexpected rain and strong, cold breeze which is not too ideal for sightseeing [@lisbon]. 
+Tourism industry cares a lot about seasonality as it would affect the guest flows to tourist locations. Hotel season divided into two main seasons: the high and low season. As the name implies, high season is a busy season when the weather is favorable and the guests inflows are high; low season vice versa. Portugal is of no exception. The high season in Portugal usually runs in summer (June to September) and spring time (January to March) ; the beaches are usually the busiest in July and August. The low season usually falls in the winter season which starts around November and ends by the end of February. Weather during this period may feature humidity, unexpected rain and strong, cold breeze which is not too ideal for sightseeing [@lisbon]. 
 
-Keeping the season time in mind, we are interested in finding out any possible influence seasonality may have on the guest count and adr of our hotels in study. The analysis in this section took into account only "Check-out" or successful bookings to avoid inflating numbers. 
+Keeping the season time in mind, we are interested in finding out any possible influence seasonality may have on the guest count and ADR of our hotels in study. The analysis in this section took into account only "Check-out" or successful bookings to avoid inflating numbers. 
 
 **Guest Count**
 
@@ -350,9 +350,9 @@ season %>%
 </center>
 
 
-The months are presented in the order of occurence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) whilst in year 2, the highest was observed in the summer time (August and October). 
+The months are presented in the order of occurrence (July was the first year for each year) to ensure the choronological order of the dataset. The overall trend was roughly the same for both years and both hotels. The seasonality trend resembled the "W" shape with the lower points of W fell into the winter months from November to January and the peak points were in spring and summer time. Interestingly, both hotels saw the higest of guests in Spring time in Year 1 (May and March) whilst in year 2, the highest was observed in the summer time (August and October). 
 
-There were some anormalities, however, spotted, of which the most noticable was that City hotel suffered a serious hit in guest counts in July 2015 whilst Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
+There were some abnormalities, however, spotted, of which the most noticeable was that City hotel suffered a serious hit in guest counts in July 2015 whilst Resort saw no such event. This drop could be due to some hotel - specific reasons, for example the hotel might have closed down for some time for renovation; however we were unable to answer due to the lack of information of hotel's identity. Other abnormal notice could be a reverse trend in March of Resort. Again this abnormality could not be explained and we believed it was due to hotel - specific cause rather than industry - specific. 
 
 Next we look at the **Average Daily Rate** or ADR in short. 
 
@@ -519,7 +519,7 @@ From this finding, we could also learn that from the customer perspective, it is
 
 <center>
 
-```{r adr-ms, fig.width = 10, fig.height=7, fig.cap = "The distibution of ADR by assigned room type with BB meal in the city and resort hotel"}
+```{r adr-ms, fig.width = 10, fig.height=7, fig.cap = "The distibution of ADR by assigned room type in the city and resort hotel"}
 
 adr_ms <- ggplot(filter(actual_guest, adr >= 0)) +
   geom_boxplot(aes(x = market_segment_new,
@@ -975,13 +975,13 @@ cancel_only %>%
 ```
 </center>
 
-Both hotels seems to proceed customers' bookings with great speed with the median waiting days at around 0 days. However, city hotel had a lot of cancelled bookings that sat through a significantly high number of days in the system before they were confirmed to the customers. On other note, city hotel had a high range of lead time and days in the system, signalling that bookings which were made too early prior arrival time may have higher chance of being cancelled.
+Both hotels seems to proceed customers' bookings with great speed with the median waiting days at around 0 days. However, city hotel had a lot of canceled bookings that sat through a significantly high number of days in the system before they were confirmed to the customers. On other note, city hotel had a high range of lead time and days in the system, signalling that bookings which were made too early prior arrival time may have higher chance of being canceled.
 
-We will look futher at this assumption, but this time comparing check-out with cancelled bookings to verify the impact of lead time and days in waiting list on the cancellation rate.  
+We will look further at this assumption, but this time comparing check-out with canceled bookings to verify the impact of lead time and days in waiting list on the cancellation rate.  
 
-**Check-out vs Cancelled**
+**Check-out vs Canceled**
 
-We want to compare the days in waitng list and days in system for both hotels. Will a booking that takes too long to proceed (high days in waiting list) or is made too early before the arrival date (high lead time) more prone to cancellation?
+We want to compare the days in waiting list and days in system for both hotels. Will a booking that takes too long to proceed (high days in waiting list) or is made too early before the arrival date (high lead time) more prone to cancellation?
 
 ```{r checkout}
 status_compare <- hotel_mngt %>%
