@@ -34,14 +34,11 @@ library(viridisLite)
 library(naniar)
 ```
 
-<<<<<<< HEAD
-# Introduction
-=======
+
 <br>
 
 
-# Introduction and motivation
->>>>>>> 101c120cb0399f858463df5563374dbe275d9e4f
+# Introduction 
 
 Obtaining data from hotel industry has always been a real challenge. Whilst we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scence. This sad truth was foreseable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hotelliers and many others to perform any studies relating to this industry.
 
@@ -1128,7 +1125,7 @@ Table \@ref(tab:request) added more to the confusion when non-refund bookings ha
 
 <br>
 
-<<<<<<< HEAD
+# Conclusion
 In this study, we tried to explore the dataset in many angels. We started by comparing the two hotels featured in this study across all of the variables provided in the dataset. 
 
 We found out that the two hotels followed the overall seasonality trend in Portugal where high season fell in the spring and summer time. The ADR for two hotels were priced at a different rates with City hotel observed less fluctuation than Resort did. Also, by market segment, the ADR of the OTA and Direct booking channel appreared to be quite competitive even though the OTA's prices were still a bit better. 
@@ -1136,21 +1133,11 @@ We found out that the two hotels followed the overall seasonality trend in Portu
 By guests origin, around 40% - 44% of the bookings were from local tourists. A vast majority of international guests were delivered through OTA channel (50% - 68%) which again emphasized the influence of this channel over the hotel industry. We also learnt that it was the international guests who paid more for the services and the room choices. 
 
 Another thing we could learn of the guests'behaviour was that guests would spend more days in resort rather than city hotel. Our dataset pointed out that resort had a handful of guests staying for up to 7 days whilst in the city hotel was 3 days. There were 675 cases recorded where guests did not stay overnight and 14.07% of those were of international travellers, higlighting a difference that locations of the two hotels could make with the resorts being in the beach area of Algrave and the city hotels in Lisbon where guests might be a regular travelers who wanted to explore Lisbon or did a Europe trip. Interestingly, most guests stayed in our two hotels were couples with resort having received more couples than city hotel. 
-=======
-
-# Conclusion
-
-In this study, we tried to explore the dataset in many angels. We started by comparing the only two hotels featured in this study across all of the variables provided in the dataset and we found out that 
->>>>>>> 101c120cb0399f858463df5563374dbe275d9e4f
 
 On a not so bright side, city hotels observed a 1.5 times higher in cancellation rate than resort. Most cancellations were common in that they steamed either from the bookings that were made too early in prior of the actual arrival date, or from bookings made by Groups and Travel agencies (both online and offline). We suspected that the loose cancellation policy of the OTA had promoted guests to abandon their bookings. Another counter - intuitive finding we discovered was that non - refund deposit group held the highest rate of cancellation; coupled with further looking into factors such as guests'special requests, we infered that customers who dropped out were either quite new to the hotels, had made a lot of cancellations before, rarely required parking space or rarely posed special requests yet still willing to pay in advance only to cancel later. 
 
 Throughout this study, we had encountered a lot of questions which can both be answered and not. We started with some initial generic questions and actually ended up with more detailed questions and an unexpected turn where we did not expect in the beginning (the cancellation digging was a nice surprise). We also had to make a lot of assumptions to facilitate our analysis which in turns, enriched our knowledge base as we had to scan through a myriad of studies looking for the answers. Overall, we enjoyed our little challenge with this dataset and hope that anyone who reads this excersise could be inspired too.  
 
-<<<<<<< HEAD
+
 # Reference
-=======
-
->>>>>>> 101c120cb0399f858463df5563374dbe275d9e4f
-
 
