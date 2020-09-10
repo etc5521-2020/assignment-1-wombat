@@ -44,7 +44,7 @@ Obtaining data from hotel industry has always been a real challenge. Whilst we c
 
 The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes [@AntonioNuno2019Hbdd] was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
 
-In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scene. What can we learn about the way hotels manage their customers' info, how they priced our bookings or who are more likely to cancel their bookings. 
+In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scene. What can we learn about the way hotels manage their customers' info, how they priced our bookings or who are more likely to cancel their bookings.
 
 We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis
 
