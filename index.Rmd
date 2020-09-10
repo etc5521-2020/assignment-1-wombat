@@ -57,6 +57,8 @@ We will mainly use R programming software for this analysis along with other res
 
 - We, do not know, whether the meal type of the hotel data, can be inferred for the information of the length of stay of the guest. Let us try and find out if possible !! 
 
+-In the generation of the added human intervention, cars play a huge role lets us find out whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
+
 
 
 # Data description
