@@ -51,6 +51,14 @@ We will mainly use R programming software for this analysis along with other res
 <br>
 
 
+# Added Research Question (Siyi and Priya)
+
+- Lets us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel Types
+
+- We, do not know, whether the meal type of the hotel data, can be inferred for the information of the length of stay of the guest. Let us try and find out if possible !! 
+
+
+
 # Data description
 
 ## Dateset overview and structure
