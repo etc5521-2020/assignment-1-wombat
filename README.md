@@ -4,8 +4,8 @@ Team name: **WOMBAT**
 
 Team members:
 
-* Hai Hanh Ngo
-* Dewi Lestari Amaliah
+* Siyi Li
+* Priya Ravindra Dingorkar
 
 # Steps
 
