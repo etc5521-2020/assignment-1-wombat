@@ -377,3 +377,32 @@ adr
 
 Figure \@ref(fig:ADR-by-month) indicates a substantial gap between the two hotels. The resort had the highest summer time prices, which makes sense because Algrave is a beach town. Both hotels reported the lowest winter prices, but less fluctuation was observed by City hotel than by Resort hotel.
 
+## Exploring the Hotels' Market Segment, Customers's preference for Booking in the two hotel types
+
+According to @meier, one key to being effective in hotel management is a specific market segment, particularly to set the price correctly. It is therefore important to identify the market segment distribution for these hotels.
+
+A study from [Phocuswright](https://www.pegs.com/blog/why-do-travelers-prefer-booking-with-otas/) in @pegs stated that one of the major reason of why do the people book trough OTA is beacuse the website is easy to use. Meanwhilst, @howe argued that OTAs are favorable because its easy booking option. According to @jedina2017exploring in @TalwarShalini2020Wdpp, the factors for booking the hotel through OTA are the accessibility, pricing, review accountability, and the customer services. 
+Let us try to find out, whether this holds true for the Portugal hotels
+
+<center>
+```{r market-segment, fig.cap = "The distribution of hotel market segment in the city and resort hotel (2015-2017)"}
+
+ms_change <- hotels_new_data %>% 
+  dplyr::filter(market_segment %in% c("Online TA", "Offline TA/TO" ,
+                  "Groups" , "Direct" , "Corporate"))%>% 
+  dplyr::mutate(market_segment = factor(market_segment, levels = c("Direct", "Corporate" , "Online TA", "Offline TA/TO" , "Groups"))) %>% 
+  ggplot() +
+  geom_bar(aes(x = market_segment, 
+            fill = hotel), 
+           position = "fill", color = "black") +
+  xlab("Hotel Type") +
+  ylab("Proportion") +
+  theme(text = element_text(size = 8)) +
+  coord_flip() +
+  theme_classic()
+ms_change
+```
+</center>
+
+Figure \@ref(fig:market-segment) shows that the vast majority of Online Travel Agency (OTA). We can clearly distinguish that, customers generally, make their bookings through online or offline agency and groups for City Hotel bookings. On the other hand, we witness that most customer make their resort hotel bookings through corporate or direct booking made by the customers. Moreover, in the city hotel the portion of bookings via OTA was greater than in the resort hotel. Unlike the city hotel, in the resort hotel we could see more portion of individual reservations than party bookings. This proves the study from Phocuswright, and hence people like to ease in booking their trips, hence they use the agency bookings.
+
