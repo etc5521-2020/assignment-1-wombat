@@ -63,17 +63,17 @@ Let us compare the efficiency of the two hotels, the City Hotel and the Resort H
 
 - Exploring the Hotels’ Market Segment, Customers’s preference for Booking
 
-- Which segment of the hotel market is more profitable and lets customers book their trip easily ?
+- Which segment of the hotel market is more profitable and let customers book their trip easily ?
 
 - Where Did The Bookings Come From ?
 
 - Let’s see, How do international guests like to reside in the hotels of Portugal ? How long do they they live there ?
 
-- Lets us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel types
+- Let us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel types
 
 - We, do not know, whether the meal type of the hotel data, can be inferred for the information of the length of stay of the guest. Let us try and find out if possible !! 
 
-- In the generation of the added human intervention, cars play a huge role lets us find out whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
+- In the generation of the added human intervention, cars play a huge role let us find out whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
 
 # Data description
 
@@ -405,7 +405,7 @@ ms_change
 
 Figure \@ref(fig:market-segment) shows that the vast majority of Online Travel Agency (OTA). We can clearly distinguish that, customers generally, make their bookings through online or offline agency and groups for City Hotel bookings. On the other hand, we witness that most customer make their resort hotel bookings through corporate or direct booking made by the customers. Moreover, in the city hotel the portion of bookings via OTA was greater than in the resort hotel. Unlike the city hotel, in the resort hotel we could see more portion of individual reservations than party bookings. This proves the study from Phocuswright, and hence people like to ease in booking their trips, hence they use the agency bookings.
 
-## Which segment of the hotel market is more profitable and lets customers book their trip easily ?
+## Which segment of the hotel market is more profitable and let customers book their trip easily ?
 
 Study of which is the best way to book your ticket would allow customers to select their services when booking trips to the hotel
 
@@ -522,7 +522,7 @@ origin_cat <- hotels_new_data %>%
 
 ```
 
-Let's try to find descriptive statistics on how the average daily rate impacts the various categories of guests in the hotel, respectively. Have the foreign guests been helping to increase the hotel profit. Lets us find out.
+Let's try to find descriptive statistics on how the average daily rate impacts the various categories of guests in the hotel, respectively. Have the foreign guests been helping to increase the hotel profit. Let us find out.
 
 <center>
 ```{r adr-origin-boxplot, fig.cap="Distribution of ADR by guest origin in the city and resort hotel"}
@@ -549,7 +549,7 @@ Since the international travellers have become the hotel's valued guest, it is e
 
 ## Let's see, How do international guests like to reside in the hotels of Portugal ? How long do they they live there ?
 
-With regard to the behavior that the guest could conduct, we would like to figure it out by looking at the time that the guest stayed in which hotels. Lets us find out which hotel was preferred for a longer stay.
+With regard to the behavior that the guest could conduct, we would like to figure it out by looking at the time that the guest stayed in which hotels. Let us find out which hotel was preferred for a longer stay.
 
 <center>
 ```{r when-stay-plot, fig.cap= "The distribution of time the guest stayed at the hotels", out.width="50%"}
@@ -569,7 +569,7 @@ when_stay_plot
 ```
 </center>
 
-Seems like  there in the Portugal a lot to explore, from our analysis we note that most international guests want to stay for a longer period of time. We infer from figure \@ref(fig:when-stay-plot) that, most tourist that travel to Portugal, like to stay for a longer period of time that is more than the weekend. Lets us try and understand, which hotel do the tourist like to stay in for their stay and does number of days of stay, give us insight on the the preference of the hotel.
+Seems like  there in the Portugal a lot to explore, from our analysis we note that most international guests want to stay for a longer period of time. We infer from figure \@ref(fig:when-stay-plot) that, most tourist that travel to Portugal, like to stay for a longer period of time that is more than the weekend. Let us try and understand, which hotel do the tourist like to stay in for their stay and does number of days of stay, give us insight on the the preference of the hotel.
 
 <center>
 ```{r length-of-stay-hist-city, fig.cap= "Length of stay of international guest in the city hotel", out.width= "1000%"}
@@ -607,7 +607,7 @@ gridExtra::grid.arrange(city_long_stay, resort_long_stay)
 
 Figure \@ref(fig:length-of-stay-hist-city) helps us infer that if the stay is longer than the weekend and extends one or two day, than we see that the percent of bookings is greater in the city hotel. But on closer look, we understand that if the traveller stays for a longer time that is week and above, we might infer that, that the tourist would live in the resort hotel.
 
-## Lets us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel types
+## Let us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel types
 
 During the analysis of this question, we will find out which customer types contribute the most towards which hotel type. Before we move towards our analysis we need to understand the type of these customers:
 - Transient: Individuals or groups that occupy less than 10 rooms per night. These guests usually stay in the hotel short - term and require little services.  
@@ -663,7 +663,7 @@ ggplot(meal_hotel_data, aes(x = length_of_stay, group = meal_name, fill= meal_na
 ```
 </center>
 
-Figure \@ref(fig:meal-stay), helps us determine the relationship between, the length of stay of the different customers in the two different types of the hotel based upon the meal type. Lets us first look in to the City Hotel, we infer that, if the length of stay is around just for a day or so, then the customer choose to have only the breakfast. If the customer books a trip for more than five days he is mostly likely to choose a full board meal, else the customers choose a half board meal. Whereas, if the see the scenario, in the Resort Hotel, we infer that most customers here choose the full board or half board meal, as we have witness that the customers in the  resort hotel generally reside longer than three days.
+Figure \@ref(fig:meal-stay), helps us determine the relationship between, the length of stay of the different customers in the two different types of the hotel based upon the meal type. Let us first look in to the City Hotel, we infer that, if the length of stay is around just for a day or so, then the customer choose to have only the breakfast. If the customer books a trip for more than five days he is mostly likely to choose a full board meal, else the customers choose a half board meal. Whereas, if the see the scenario, in the Resort Hotel, we infer that most customers here choose the full board or half board meal, as we have witness that the customers in the  resort hotel generally reside longer than three days.
 
 ## Whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
 
