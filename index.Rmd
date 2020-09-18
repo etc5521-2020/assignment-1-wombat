@@ -36,34 +36,12 @@ library(maps)
 library(viridis)
 library(viridisLite)
 library(naniar)
+library(dplyr)
 ```
 
-<br>
+# Acknowledgements
 
-
-# Introduction 
-
-Obtaining data from hotel industry has always been a real challenge. Whilst we can read about the hotel jargons and terms easily, scanned through some of the common descriptive statistics of the hotel industry in market research reports or seems to stand on top of the world by pocketing some of the "industry secret" provided by the Internet for price negotiating for your next summer trip, less is known about how a hotel actually runs behind the scene. This sad truth was foreseeable as no hotels would be willing to share their performance to the public eyes. Such limitation posed a challenge for researchers, scientists, hoteliers and many others to perform any studies relating to this industry.
-
-The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes [@AntonioNuno2019Hbdd] was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others.
-
-In this study, we performed some initial analysis on the dataset to help us answer one of the question we mentioned at the beginning, about how hotels performance actually looks like behind the scene. What can we learn about the way hotels manage their customers' info, how they priced our bookings or who are more likely to cancel their bookings.
-
-We will mainly use R programming software for this analysis along with other research materials we could find on the internet. Graphical displays are mostly utilised to support our diagnostics and analysis
-
-<br>
-
-
-# Added Research Question (Siyi and Priya)
-
-- Lets us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel Types
-
-- We, do not know, whether the meal type of the hotel data, can be inferred for the information of the length of stay of the guest. Let us try and find out if possible !! git
-
--In the generation of the added human intervention, cars play a huge role lets us find out whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
-
-
-
+Our sincere gratitude goes out for their guidance and encouragement to Professor Dianne Cook, Dr Emi Tanka, and the tutors Sayani Gupta and Sherry Zhang. Their culminating efforts have placed us in a position where we can generate this report collaboratively.
 # Data description
 
 ## Dateset overview and structure
