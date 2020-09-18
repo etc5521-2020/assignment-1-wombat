@@ -279,3 +279,101 @@ hotels_new_data <- hotels_corrected_type %>%
                               str_detect(arrival_month_year, "August2017") ~ "2017 Sem 2"))
 ```
 
+# Analysis and Findings
+
+**Tourism and Seasonality in Portugal**
+
+The tourism industry worries a lot about seasonality, as it will affect the flow of visitors to tourist destinations. The hotel season is divided into two main seasons: high and low seasons. As the name suggests, high season is a busy season when the weather is good and the guests' inflows are high; low season vice versa.
+
+Portugal is no exception to this. The high season in Portugal usually runs in summer (June to September) and in spring (January to March); the beaches are usually the busiest in July and August. The low season generally occurs during the winter season, which begins around November and ends at the end of February. Weather during this time can display rainfall, unexpected rain and a strong, cold breeze which is not too ideal for sightseeing [@lisbon]. 
+
+Keeping the season in mind, we are interested in finding out any potential effect of seasonality on the guest count and the ADR of our hotels in the report.
+
+```{r var-choose}
+hotel_mngt <- hotels %>%
+  mutate(arrival_date = dmy(paste0(arrival_date_day_of_month, arrival_date_month, arrival_date_year, sep = "-"))) %>%
+  select(hotel, arrival_date, arrival_date_week_number,arrival_date_month, arrival_date_year, lead_time,
+         previous_cancellations, previous_bookings_not_canceled, deposit_type, booking_changes,deposit_type,
+         agent, days_in_waiting_list, required_car_parking_spaces, total_of_special_requests, 
+         reservation_status, reservation_status_date, customer_type, market_segment, adr, is_repeated_guest, adults, children, babies) %>%
+  # Tweaking a bit
+  mutate(hotel = as.factor(hotel),
+         year = as.numeric(arrival_date-arrival_date[1]) %/% 365+1)
+```
+
+## Which months across the two year, saw the most inflow of the tourist ?
+
+The inflow of visitors to these two hotels will help us decide the months in Portugal are the best time to travel to Portugal, and which hotel is the place to stay when you travel to Portugal.
+
+```{r season}
+season <- hotel_mngt %>%
+  select(hotel, arrival_date_month, year,reservation_status, customer_type, market_segment, adr, adults, children, babies) %>%
+  # Choose successful bookings only to avoid distortion of adr
+  filter(reservation_status == "Check-Out",
+  # filter out bookings with ADR < 0 - there are bookings with negative adr!
+         market_segment >= 0) %>%
+  # convert month to factor for plotting purpose
+  mutate(arrival_date_month = as.factor(arrival_date_month),
+         total_guests = adults + children + babies)
+```
+
+<center>
+```{r guest-by-month, fig.cap = "Count of Number of Guests by each month in the two Different Years"}
+# Guests count by month
+season %>%
+  group_by(hotel, year, arrival_date_month) %>%
+  summarise(total_guests = sum(total_guests)) %>%
+  # Year 3 does not have full years (3 months only) so we used year 1 and 2
+  filter(!year == 3) %>%
+  # Grouping will make geom_line runs in a straight vertical line
+  ungroup() %>%
+  ggplot(aes(x = factor(arrival_date_month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")), y = total_guests,
+             group=factor(year), colour=factor(year))) +
+  geom_line() +
+  theme_classic() +
+  facet_wrap(~hotel) +
+  labs(title = "Count of Guests by each Month",
+       x = "Months",
+       y = "Count of the total Guest",
+       colour = "Year") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("#000080", "#FF0000"))
+```
+</center>
+
+Months are described in the order of occurrence (July was the first year of each year) to maintain the chronological order of the dataset. The overall pattern has been nearly the same for both hotels and years. The seasonality pattern was similar to the "W" shape, with the lower points of W occurring in the winter months from November to January, and the high points in the spring and summer periods. Interestingly, both hotels had the highest number of guests in the spring season in Year 1 (May and March) while in Year 2, the highest tourism was recorded in the summer season (August and October).
+
+We can therefore infer that most of the months are a good time to visit Protugal, particularly from July to October and January to March, the graph above shows that most of the guests prefer to stay in City Hotel compared to the Resort Hotel.
+
+## Let's try to figure out the average daily rate of both types of hotels and figure out which type of hotel makes more money
+
+The average daily rate (ADR) calculates the average rental income received in an occupied room per day. The operating performance of a hotel or other lodging company can be calculated by using the ADR.
+
+<center>
+```{r ADR-by-month, fig.cap = "Average Daily Rate Versus Hotel Type"}
+# ADR by months
+adr <- season %>%
+  group_by(hotel, year, arrival_date_month) %>%
+  # Year 3 does not have full years (3 months only) so we used year 1 and 2
+  filter(!year == 3) %>%
+  summarise(avg_adr = mean(adr)) %>%
+  # Grouping will make geom_line runs in a straight vertical line
+  ungroup() %>%
+  ggplot(aes(x = factor(arrival_date_month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")), y = avg_adr,
+             group=factor(year), colour=factor(year))) +
+  geom_line() +
+  geom_point(shape=21, color="black", fill="#69b3a2", size=3) +
+  theme_classic() +
+  facet_wrap(~hotel) +
+  labs(title = "Average Daily Rate for each Month",
+       x = "Month",
+       y = "Currency",
+       colour = "Year") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = c("#000080", "#FF0000"))
+adr
+```
+</centre>
+
+Figure \@ref(fig:ADR-by-month) indicates a substantial gap between the two hotels. The resort had the highest summer time prices, which makes sense because Algrave is a beach town. Both hotels reported the lowest winter prices, but less fluctuation was observed by City hotel than by Resort hotel.
+
