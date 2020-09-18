@@ -546,5 +546,150 @@ ggplotly(adr_origin_boxplot)
 
 We have analysed that most bookings in both hotels are from international travelers and the ADR median presented in Figure \@ref(fig:adr-origin-boxplot) Shows that foreign guests in both types of hotels paid more money than the locals. Therefore we might argue that these travelers have become the hotels' valued customers. The hover option, gives us more detail in the summary statistics and we can infer which 25 percentile/75 percentile values of ADR in Euros. This will be a good insight for us, when we have a certain limit on the expenditure for trips can keep this percentiles as reference and evaluate our desired expenditure
 
-Since the international travellers have become the hotel's valued guest, it is easier to retain them through personalization as a potential long-term customer. According to @criton personalisation is the secret to the customer's heart winning.
+Since the international travellers have become the hotel's valued guest, it is easier to retain them through personalization as a potential long-term customer. According to @criton personalization is the secret to the customer's heart winning.
+
+## Let's see, How do international guests like to reside in the hotels of Portugal ? How long do they they live there ?
+
+With regard to the behavior that the guest could conduct, we would like to figure it out by looking at the time that the guest stayed in which hotels. Lets us find out which hotel was preferred for a longer stay.
+
+<center>
+```{r when-stay-plot, fig.cap= "The distribution of time the guest stayed at the hotels", out.width="50%"}
+
+when_stay_plot <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0)) +
+  geom_bar(aes(y = hotel,
+               fill = stay_on),
+           position = "dodge", 
+           color = "black") +
+  xlab("Proportion of Days Stayed") +
+  ylab("Hotel Type") +
+  theme(text = element_text(size = 8)) +
+  theme_classic()
+  
+
+when_stay_plot
+```
+</center>
+
+Seems like  there in the Portugal a lot to explore, from our analysis we note that most international guests want to stay for a longer period of time. We infer from figure \@ref(fig:when-stay-plot) that, most tourist that travel to Portugal, like to stay for a longer period of time that is more than the weekend. Lets us try and understand, which hotel do the tourist like to stay in for their stay and does number of days of stay, give us insight on the the preference of the hotel.
+
+<center>
+```{r length-of-stay-hist-city, fig.cap= "Length of stay of international guest in the city hotel", out.width= "1000%"}
+
+city_long_stay <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0 & hotel == "City Hotel")) +
+  geom_histogram(aes(x = length_of_stay, 
+                     y = stat(count)/sum(stat(count))),
+                 binwidth = 1, 
+                 colour = "black",
+                 fill = "#F1948A",
+                 show.legend = FALSE) +
+  #scale_x_continuous(breaks = seq(0, 60, by=5)) +
+  xlab("Length of Stay at City Hotel") +
+  ylab("Percent of Bookings") +
+  theme(text = element_text(size = 8)) +
+  scale_y_continuous(labels = scales::percent)+
+  theme_classic() + xlim(0,9)
+
+resort_long_stay <- ggplot(filter(origin_cat, is_canceled == 0 & origin == "international" & length_of_stay !=0 & hotel == "Resort Hotel")) +
+  geom_histogram(aes(x = length_of_stay, 
+                     y = stat(count)/sum(stat(count))),
+                 binwidth = 1, 
+                 colour = "black",
+                 fill = "#3ED9DE",
+                 show.legend = FALSE) +
+  #scale_x_continuous(breaks = seq(0, 60, by=5)) +  
+  xlab("Length of Stay at Resort Hotel") +
+  ylab("Percent of Bookings") +
+  theme(text = element_text(size = 8)) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_classic() + xlim(0,9)
+
+gridExtra::grid.arrange(city_long_stay, resort_long_stay)
+```
+
+Figure \@ref(fig:length-of-stay-hist-city) helps us infer that if the stay is longer than the weekend and extends one or two day, than we see that the percent of bookings is greater in the city hotel. But on closer look, we understand that if the traveller stays for a longer time that is week and above, we might infer that, that the tourist would live in the resort hotel.
+
+## Lets us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel types
+
+During the analysis of this question, we will find out which customer types contribute the most towards which hotel type. Before we move towards our analysis we need to understand the type of these customers:
+- Transient: Individuals or groups that occupy less than 10 rooms per night. These guests usually stay in the hotel short - term and require little services.  
+- Contract: bookings bound by contracts, usually for more than 30 days for a consistent block of rooms. 
+- Transient - Party: Transient booking but associated to other transient booking.   
+- Group: bookings associated to a group, usually occupy more than 10 rooms per night.
+
+<center>
+```{r adr-cust, fig.cap="Relationship, between the customer type and the ADR(Average Daily Rate"}
+cust_hotel_data <- hotels_new_data%>%
+  select(hotel,adr,customer_type)
+
+cust_hotel_data%>%
+  ggplot(aes(x = hotel, y=adr, color = hotel, fill = hotel))+
+  geom_col()+
+  facet_wrap(~customer_type)+
+  ylim(0,600) +
+  xlab("Type of Hotels") +
+  ylab("Contibution towrads ADR in different customers") +
+  theme(text = element_text(size = 8))+
+  theme_classic()
+```
+</center>
+
+In the figure \@ref(fig:adr-cust), we can infer that Individuals or groups that occupy less than 10 rooms per night can also be called as Transient customer, contribute more towards the City Hotel in terms of the ADR. Customers bound by contract, also contribute a slight more towards City hotel as compared to the resort hotel. But when we have bookings associated to a group, usually occupying more than 10 rooms per night, this type of customers will mostly choose to reside at the resort hotel and contribute towards it's ADR. This finding also aligns with the previous research question about the length of stay. So we can infer that, when temporary customers or contract based customers visit Portugual, they will be mostly be residing at the City Hotel, thus contributing to the profits of the ADR in that particular hotel.
+
+## Whether the meal type of the hotel data, can be inferred for the information of the length of stay of the guest. 
+
+Let us try and infer the relationship between the meal type the customers has choosen versus the length of stay of that customer.
+
+<center>
+```{r meal-stay, fig.cap="Relationship between Meals and Length of Stay"}
+library(hrbrthemes)
+library(viridis)
+meal_hotel_data <- hotels_new_data %>%
+  select(hotel,meal, length_of_stay) %>% 
+  filter(meal %in% c("BB", "FB", "HB")) %>% 
+  dplyr::mutate(meal_name = case_when(str_detect(meal, "BB") ~ "Breakfast",
+                                      str_detect(meal, "HB") ~ "Breakfast and One Meal",
+                                      str_detect(meal, "FB") ~ "Breakfast, Lunch and Dinner"))
+
+ggplot(meal_hotel_data, aes(x = length_of_stay, group = meal_name, fill= meal_name)) +
+    geom_density(adjust=1.5, alpha = 0.6) +
+    theme_ipsum() +
+    scale_fill_viridis(discrete=TRUE) +
+    scale_color_viridis(discrete=TRUE) +
+    facet_wrap(~hotel) +
+    theme(
+      legend.position="right",
+      panel.spacing = unit(0.1, "lines"),
+      axis.ticks.x=element_blank()) +
+  xlim(0,9) + xlab("Length of Stay") +ylab("") 
+```
+</center>
+
+Figure \@ref(fig:meal-stay), helps us determine the relationship between, the length of stay of the different customers in the two different types of the hotel based upon the meal type. Lets us first look in to the City Hotel, we infer that, if the length of stay is around just for a day or so, then the customer choose to have only the breakfast. If the customer books a trip for more than five days he is mostly likely to choose a full board meal, else the customers choose a half board meal. Whereas, if the see the scenario, in the Resort Hotel, we infer that most customers here choose the full board or half board meal, as we have witness that the customers in the  resort hotel generally reside longer than three days.
+
+## Whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
