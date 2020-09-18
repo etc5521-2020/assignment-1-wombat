@@ -16,9 +16,6 @@ output:
 ---
 
 [This assignment is for ETC5521 Assignment 1 by Team `r rmarkdown::metadata$team` comprising of `r knitr::combine_words(rmarkdown::metadata$author)`.]{style="color:#006DAE;"}
-```{r}
-knitr::opts_chunk$set( cache = TRUE)
-```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -56,8 +53,7 @@ The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and
 
 ## Primary Research Questions
 
-Let us compare the efficiency of the two hotels, the City Hotel and the Resort Hotel, and try to understand the business of the hotels and what they really look like behind the scenes. Let us discuss how hotels manage the details of their clients, how bookings are priced, and how they are canceled bookings are managed.
-
+Let us compare the efficiency of the two hotels, the City Hotel and the Resort Hotel, and try to understand the business of the hotels and what they really look like behind the scenes. Let try and find, the interesting fact and findings through our analysis.
 
 ## Secondary Research Questions 
 
@@ -670,8 +666,12 @@ ggplot(meal_hotel_data, aes(x = length_of_stay, group = meal_name, fill= meal_na
 Figure \@ref(fig:meal-stay), helps us determine the relationship between, the length of stay of the different customers in the two different types of the hotel based upon the meal type. Lets us first look in to the City Hotel, we infer that, if the length of stay is around just for a day or so, then the customer choose to have only the breakfast. If the customer books a trip for more than five days he is mostly likely to choose a full board meal, else the customers choose a half board meal. Whereas, if the see the scenario, in the Resort Hotel, we infer that most customers here choose the full board or half board meal, as we have witness that the customers in the  resort hotel generally reside longer than three days.
 
 ## Whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
+
+We will like to find out, if the car parking has some important role to play while the customers, and see how this varies, with the different variables
+
+
 <center>
-```{r}
+```{r a1, fig.cap = "Different Guest Types and Car Parking"}
 library(hrbrthemes)
 parking_data <-origin_cat %>% dplyr::select(hotel, required_car_parking_spaces, origin,length_of_stay, customer_type, family_type)
 
@@ -689,12 +689,12 @@ group_by(origin)%>%
 ggplotly(family_car_parking)
 
 ```
-</center
+</center>
 
-According to the graph of the required number of car parking spaces against guest type, majority of the people whether the international or local do not need a car parking space, but there is a small percentage of people need one car parking space(4200 times belong to international guests, 3077 belong to local guest).
+According to the figure \@ref(fig:a1) graph of the required number of car parking spaces against guest type, majority of the people whether the international or local do not need a car parking space, but there is a small percentage of people need one car parking space(4200 times belong to international guests, 3077 belong to local guest).
 
 <center>
-```{r}
+```{r b1, fig.cap="Different Family Types and Car Parking"}
 family_car_parking<-parking_data%>%
 group_by(family_type)%>% 
   count(required_car_parking_spaces)%>%
@@ -707,11 +707,11 @@ ggplotly(family_car_parking)
 ```
 </center>
 
-According to the graph of the required number of car parking spaces against family type, majority of the people whether the family or not family do not need a car parking space, but there is a small percentage of people need one car parking space(1850 times belong to family, 6288 belong to not family).
+According to the figure \@ref(fig:b1) graph of the required number of car parking spaces against family type, majority of the people whether the family or not family do not need a car parking space, but there is a small percentage of people need one car parking space(1850 times belong to family, 6288 belong to not family).
 
 
 <center>
-```{r}
+```{r c1, fig.cap="Hotel Types and Parking"}
 hotel_car_parking<-parking_data%>%
 group_by(hotel)%>% 
   count(required_car_parking_spaces)%>%
@@ -725,12 +725,12 @@ ggplotly(hotel_car_parking)
 </center>
 
 
-According to the graph of the required number of car parking spaces against hotel type, majority of the people whether the family or not family do not need a car parking space, but there is a small percentage of people need one car parking space(6402 times belong to transient, 133 belong to contract,797 belong to transient-party and 51 belong to group).
+According to the figure \@ref(fig:c1) graph of the required number of car parking spaces against hotel type, majority of the people whether the family or not family do not need a car parking space, but there is a small percentage of people need one car parking space(6402 times belong to transient, 133 belong to contract,797 belong to transient-party and 51 belong to group).
 
 
 
 <center>
-```{r}
+```{r d1, fig.cap="Customer Types and Parking"}
 customer_car_parking<-parking_data%>%
 group_by(customer_type)%>% 
   count(required_car_parking_spaces)%>%
@@ -743,23 +743,19 @@ ggplotly(customer_car_parking)
 ```
 </center>
 
-According to the graph of the required number of car parking spaces against customer type, majority of the people whether the family or not family do not need a car parking space, but there is a small percentage of people need one car parking space(1921 times belong to city hotel, 5462 belong to resort hotel). It indicates that people who live in resort hotel prefer a car parking space, and i think that they may have a holiday here. There is an interesting thing, and resort hotel is asked twice by visitors with 8 car parking spaces. all the visitors are not family. it is pretty superise since these people are transient-party rather than Group.
+According to the figure figure \@ref(fig:d1) graph of the required number of car parking spaces against customer type, majority of the people whether the family or not family do not need a car parking space, but there is a small percentage of people need one car parking space(1921 times belong to city hotel, 5462 belong to resort hotel). It indicates that people who live in resort hotel prefer a car parking space, and i think that they may have a holiday here. There is an interesting thing, and resort hotel is asked twice by visitors with 8 car parking spaces. all the visitors are not family. it is pretty surprising  since these people are transient-party rather than Group.
 
+We mainly incorporated the function from `tidyverse` [@tidyverse], `ggplot2` [@R-ggplot2], and `plotly` [@R-plotly]. We also used `lubridate` [@R-lubridate], `kableExtra` [@R-kableExtra], `gridExtra` [@R-gridExtra], `DT` [@R-DT], `maps` [@R-maps], `viridis` [@R-viridis], and `viridisLite` [@R-viridisLite] throughout the visualization.
 
 # Conclusion
 
-In this study, we tried to explore the dataset in many angels. We comparred the two hotels featured in this study across the different variables provided in the dataset. 
+In this study, we tried to explore the dataset in many angels. We compared the two hotels featured in this study across the different variables provided in the dataset. 
 
-We found out that the two hotels followed the overall seasonality trend in Portugal where high season falling in the spring and summer time. The ADR for two hotels were priced at a different rates with City hotel observed less fluctuation than Resort did. Also, by market segment, the ADR of the OTA and Direct booking channel appreared to be quite competitive even though the OTA's prices were still a bit better. 
+We found out that the two hotels followed the overall seasonality trend in Portugal where high season falling in the spring and summer time. The ADR for two hotels were priced at a different rates with City hotel observed less fluctuation than Resort did. Also, by market segment, the ADR of the OTA and Direct booking channel appeared to be quite competitive even though the OTA's prices were still a bit better. We explored that most of the customers book their trips for city hotel through travel agency whereas the resort hotel receive most direct or corporate bookings. We also did some research on which market segment is profiting the most semester wise and we saw that people have started booking their tickets more through online travel agency. We also saw the different places around the globe where Portugal received its tourist from and found that more European citizens, like to visit Portugal.
 
-A vast majority of international guests were delivered through OTA channel  which again emphasized the influence of this channel over the hotel industry. We also learnt that it was the international guests who paid more for the services and the room choices. 
+We further saw whether it was international guest that visited to these hotels or were these the local citizens, our analysis allowed us to infer that the percentage of international guest visitors was higher compared to local citizens. In addition, we concluded that how the different customers in these two different hotels contributed in ADR of these hotels and found out that only the group booking contributed most towards the Resort hotel, rest of them increased the ADR of the City Hotel. The meal type booked by different customers, helped us find out the information of the length of stay in these two hotels, furthermore we also analyzed about the parking information.
 
-Another thing we could learn of the guests'behaviour was that guests would spend more days in resort rather than city hotel. Our dataset pointed out that resort had a handful of guests staying for up to 7 days whilst in the city hotel was 3 days. There were 675 cases recorded where guests did not stay overnight and 14.07% of those were of international travellers, higlighting a difference that locations of the two hotels could make with the resorts being in the beach area of Algrave and the city hotels in Lisbon where guests might be a regular travelers who wanted to explore Lisbon or did a Europe trip. Interestingly, most guests stayed in our two hotels were couples with resort having received more couples than city hotel. 
-
-On a not so bright side, city hotels observed a 1.5 times higher in cancellation rate than resort. Most cancellations were common in that they steamed either from the bookings that were made too early in prior of the actual arrival date, or from bookings made by Groups and Travel agencies (both online and offline). We suspected that the loose cancellation policy of the OTA had promoted guests to abandon their bookings. Another counter - intuitive finding we discovered was that non - refund deposit group held the highest rate of cancellation; coupled with further looking into factors such as guests'special requests, we infered that customers who dropped out were either quite new to the hotels, had made a lot of cancellations before, rarely required parking space or rarely posed special requests yet still willing to pay in advance only to cancel later. 
-
-Throughout this study, we had encountered a lot of questions which can both be answered and not. We started with some initial generic questions and actually ended up with more detailed questions and an unexpected turn where we did not expect in the beginning (the cancellation digging was a nice surprise). We also had to make a lot of assumptions to facilitate our analysis which in turns, enriched our knowledge base as we had to scan through a myriad of studies looking for the answers. Overall, we enjoyed our little challenge with this dataset and hope that anyone who reads this excersise could be inspired too.  
-
+Overall, we really liked working on this project, it really makes us look forward to working on the exploratory data analysis on the different datasets.
 
 # Reference
 
