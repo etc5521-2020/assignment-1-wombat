@@ -406,3 +406,104 @@ ms_change
 
 Figure \@ref(fig:market-segment) shows that the vast majority of Online Travel Agency (OTA). We can clearly distinguish that, customers generally, make their bookings through online or offline agency and groups for City Hotel bookings. On the other hand, we witness that most customer make their resort hotel bookings through corporate or direct booking made by the customers. Moreover, in the city hotel the portion of bookings via OTA was greater than in the resort hotel. Unlike the city hotel, in the resort hotel we could see more portion of individual reservations than party bookings. This proves the study from Phocuswright, and hence people like to ease in booking their trips, hence they use the agency bookings.
 
+## Which segment of the hotel market is more profitable and lets customers book their trip easily ?
+
+Study of which is the best way to book your ticket would allow customers to select their services when booking trips to the hotel
+
+<center> 
+```{r semester-ms-plot, fig.cap = "The distribution of hotel market segment in the city and resort hotel by semester" }
+
+semester_ms_plot <- ggplot(filter(hotels_new_data, semester != "2017 Sem 2")) +
+  geom_bar(aes(y = semester, 
+               fill = market_segment), 
+           position = "dodge" , color = "black") +
+  xlab("Proportion") +
+  ylab("Semester Wise Duration") +
+  theme(text = element_text(size = 8)) +
+  facet_wrap(~hotel) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+semester_ms_plot
+```
+</center>
+
+OTA has been the major player in the business segment of these hotels, it only took over the supremacy of group reservations in the city hotel in a half year period. In the first semester of 2016, the proportion of the OTA was doubled than in the previous semester.
+
+The bookings through OTA have dominated since the beginning of the time observed, while at the resort hotel in comparison to the city hotel, the bookings via OTA marginally decreased in the first semester of 2016 and the group bookings increased or customers started booking on their own. We could also see that both hotels had hit the peak in the proportion of OTA bookings in semester 2 of 2016.
+
+Aside from OTA matter, Figure \@ref(fig:semester-ms-plot) shows another interesting fact that in the condition of OTA booking was dominating the market segment, the proportion of direct booking in the resort hotel was relatively stable, this could be the reason may be cause this resort has their own way to promote their direct booking, for example may be through a loyalty voucher
+
+## Where Did The Bookings Come From ? 
+
+Another way to obtain more business information is to look at the roots of the travellers who book hotel space. An understanding of their actions and preference is essential. Therefore the hoteliers will establish strategies for attracting them.
+
+We may examine which part of the world is most drawn to Portuguese
+
+
+```{r country-check}
+
+# check if there is undefined country in the hotel bookings
+
+#dplyr::distinct(hotels_new_data, country)
+
+# Apparently, there is also a null observation in the country name. 
+# We would like to know the percentage of this null country observation.
+
+null_country <- hotels_new_data %>% filter(country == "NULL")
+p_null_country <- round(nrow(null_country)/ nrow(hotels_new_data) * 100, 3)
+
+
+```
+
+```{r bookers-table}
+
+book_origin <- hotels_new_data %>% filter(country != "NULL") %>% 
+  group_by(country) %>%
+  count(country) %>%
+  arrange(desc(n)) %>%
+  ungroup
+
+# The country comes in ISO3 name, in order to get better interpretation, we recode the country to its actual name
+
+country_name <- countrycode(book_origin$country, "iso3c", "country.name")
+
+book_origin_new <- cbind(book_origin, country_name)
+
+#countrycode function could not find the match of "CN" and "TMP", so we changed it manually
+
+book_origin_new[13,3] = "CN"
+book_origin_new[130,3] = "East Timor"
+
+col_order <- c("country", "country_name", "n")
+
+book_origin_table <-  book_origin_new[, col_order]
+```
+
+<center>
+```{r bookings-map, fig.cap = "The distibution of travelers origin who books the hotels in 2015-2017"}
+
+world_map <- map_data("world")
+bookings_map_dat <- left_join(book_origin_table, world_map, by = c("country_name" = "region"))
+
+bookings_map <- ggplot(bookings_map_dat, aes(long, lat, group = group))+
+  geom_polygon(aes(fill = n ), color = "white") +
+  scale_fill_viridis("C")+
+  theme_bw()
+
+ggplotly(bookings_map)
+
+```
+</center>
+
+Figure \@ref(fig:bookings-map) provides a booking map of the country of origin to get a view of the booking distribution, throughout the globe, The hover options, helps us with the count of the guests who have visited Portugal. If you hover over the map, it tell us that Portugal sees more tourists from Europe than the rest of the continents
+
+As this could be a topic of interest for most of you and each individual, may want to know the count of guests that have visited Portugal. The interactive table below, allows you to get a detail view. The table suggests that the bookings came from `r nrow(book_origin_table)` different countries.
+
+<center>
+```{r origin_table}
+DT::datatable(book_origin_table, colnames = c("Country Code", "Country Name", "Number of Bookings"),
+              caption = "The number of hotel bookings based on bookings country of origin")
+```
+</center>
+
