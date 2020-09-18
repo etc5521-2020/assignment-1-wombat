@@ -1,14 +1,18 @@
 ---
 title: "ETC5521 Assignment 1"
-subtitle: "An Initial Exploratory Of A Hotel Dataset"
+subtitle: "Hotels and their Buinesss Managment"
 team: WOMBAT
 author:
   - Hai Hanh Ngo
   - Dewi Lestari Amaliah
+  - Siyi Li
+  - Priya Ravindra Dingorkar
 date: "`r Sys.Date()`"
 bibliography: references.bib
 output: 
-  bookdown::html_document2
+  bookdown::html_document2:
+   toc: true
+   toc_float: true
 ---
 
 [This assignment is for ETC5521 Assignment 1 by Team `r rmarkdown::metadata$team` comprising of `r knitr::combine_words(rmarkdown::metadata$author)`.]{style="color:#006DAE;"}
