@@ -507,3 +507,44 @@ DT::datatable(book_origin_table, colnames = c("Country Code", "Country Name", "N
 ```
 </center>
 
+## Let's see the effect of ADR on the two types of hotels with different types of guests.
+
+```{r mutate-origin}
+
+# Create new variable which categorize the origin of travelers.
+# We omitted the country observations that are equal to NULL
+
+origin_cat <- hotels_new_data %>%
+  filter(country != "NULL") %>%
+  mutate(origin = if_else(
+           condition = country == "PRT",
+           true = "local",
+           false = "international"))
+
+```
+
+Let's try to find descriptive statistics on how the average daily rate impacts the various categories of guests in the hotel, respectively. Have the foreign guests been helping to increase the hotel profit. Lets us find out.
+
+<center>
+```{r adr-origin-boxplot, fig.cap="Distribution of ADR by guest origin in the city and resort hotel"}
+
+adr_origin <- filter(origin_cat, is_canceled == 0)
+
+adr_origin_boxplot <- ggplot(adr_origin) +
+  geom_boxplot(aes(x = origin,
+               y = adr, fill = origin)) +
+  xlab("Guests Origin") +
+  ylab("ADR (Euro)") +
+  facet_wrap(~ hotel) +
+  theme(text = element_text(size = 8)) +
+  scale_fill_manual(values = c("#F1C40F", "#5DADE2"))+
+  theme_classic()
+
+ggplotly(adr_origin_boxplot)
+```
+</center>
+
+We have analysed that most bookings in both hotels are from international travelers and the ADR median presented in Figure \@ref(fig:adr-origin-boxplot) Shows that foreign guests in both types of hotels paid more money than the locals. Therefore we might argue that these travelers have become the hotels' valued customers. The hover option, gives us more detail in the summary statistics and we can infer which 25 percentile/75 percentile values of ADR in Euros. This will be a good insight for us, when we have a certain limit on the expenditure for trips can keep this percentiles as reference and evaluate our desired expenditure
+
+Since the international travellers have become the hotel's valued guest, it is easier to retain them through personalization as a potential long-term customer. According to @criton personalisation is the secret to the customer's heart winning.
+
