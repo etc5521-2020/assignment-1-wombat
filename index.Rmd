@@ -42,6 +42,40 @@ library(dplyr)
 # Acknowledgements
 
 Our sincere gratitude goes out for their guidance and encouragement to Professor Dianne Cook, Dr Emi Tanka, and the tutors Sayani Gupta and Sherry Zhang. Their culminating efforts have placed us in a position where we can generate this report collaboratively.
+
+# Introduction and Motivation
+
+Getting data from the hotel industry has always been a real challenge. Although we can read about hotel jargons and words easily, searched through some of the standard descriptive statistics of the hotel industry in market research reports on the internet for the price of your next summer holiday, lesser is known about how the hotel actually works behind the scenes. In this article let us have sneak into the hotel data in detail and come up with interesting findings.
+
+The "hotel booking demand datasets" compiled by Nuno Antonio, Ana de Almeida and Luis Nunes [@AntonioNuno2019Hbdd] was a beautiful effort to overcome such challenge. This dataset was obtained from two hotels in Portugal - one city hotel in Lisbon and one resort in Algrave. Some of the sensitive information that could reveal the identity of the two hotels was not provided, but it did not affect the important role of this dataset for the purpose of education, management, machine learning and many others. Let us analyze and find out some intersting findings about the different workings of the hotels.
+
+# Research Questions
+
+## Primary Research Questions
+
+Let us compare the efficiency of the two hotels, the City Hotel and the Resort Hotel, and try to understand the business of the hotels and what they really look like behind the scenes. Let us discuss how hotels manage the details of their clients, how bookings are priced, and how they are canceled bookings are managed.
+
+
+## Secondary Research Questions 
+
+- Which months across the two year, saw the most inflow of the tourist ?
+
+- Let’s try to figure out the average daily rate of both types of hotels and figure out which type of hotel makes more money
+
+- Exploring the Hotels’ Market Segment, Customers’s preference for Booking
+
+- Which segment of the hotel market is more profitable and lets customers book their trip easily ?
+
+- Where Did The Bookings Come From ?
+
+- Let’s see, How do international guests like to reside in the hotels of Portugal ? How long do they they live there ?
+
+- Lets us further find out if there any relationship, between the customer type and the ADR(Average Daily Rate) in the two different hotel types
+
+- We, do not know, whether the meal type of the hotel data, can be inferred for the information of the length of stay of the guest. Let us try and find out if possible !! 
+
+- In the generation of the added human intervention, cars play a huge role lets us find out whether there is any relationship between the the car parking space in the two different types of hotels mentioned in the dataset.
+
 # Data description
 
 ## Dateset overview and structure
